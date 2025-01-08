@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1 class="title">Students' Mess</h1>
+        <h2 class="subtitle">Men's Hostel - University of Calicut</h2>
+        <div class="searchbar shadow">
+            <input type="search" name="search" id="search" placeholder="Search Inmate">
+            <span class="material-symbols-outlined">search</span>
+        </div>
+        <div class="row">
+            <div class="group">
+                <label for="date">Choose Date:&nbsp;&nbsp;</label>
+                <input type="date" name="date" id="date" class="shadow">
+            </div>
+            <span class="user">User Name</span>
+        </div>
+    </header>
+
+    <section class="inmate-view">
+        {% for inmate in inmates %}
+        <div class="inmate-item">
+            <img src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg" alt="person" class="person">
+            <div class="contents">
+                <div class="row">
+                    <h3 class="name">{{ inmate['inmate_name'] }}</h3>
+                    {% if inmate['is_ablc'] %}
+                    <span class="ablc">ABLC</span>
+                    {% endif %}
+                </div>
+                <p class="dept">{{ inmate['department'] }}</p>
+            </div>
+            <span class="mess-number">{{ inmate['mess_no'] }}</span>
+            <div class="tags">
+                <span class="tag breakfast active">B</span>
+                <span class="tag lunch active">L</span>
+                <span class="tag dinner disabled">D</span>
+                {% if in_status == 'in' %}
+                    <span class="status in">In</span>
+                {% elif in_status == 'out' %}
+                    <span class="status out">Out</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
