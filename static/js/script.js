@@ -1,6 +1,3 @@
-const today = new Date().toISOString().split('T')[0];
-document.getElementById("date").value = today;
-
 // Add event listener to the search bar
 document.getElementById("search").addEventListener("input", function() {
     const searchTerm = this.value.toLowerCase(); // Get the search term and convert to lowercase
@@ -24,5 +21,50 @@ document.addEventListener("keydown", function(event) {
     if (event.ctrlKey && event.key === "f") {
         event.preventDefault(); // Prevent the default browser find behavior
         document.getElementById("search").focus(); // Set focus to the search bar
+    }
+});
+
+
+// Popup functionality
+// Function to show the popup with inmate details
+function showPopup(inmateId) {
+    fetch(`/get_inmate_details/${inmateId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.querySelector('#popupName span').innerText = data.name;
+                document.querySelector('#popupDept span').innerText = data.department;
+                document.querySelector('#popupMessNumber span').innerText = data.mess_number;
+                document.getElementById('popup').style.display = 'flex';
+            }
+        });
+}
+
+// Close the popup
+document.getElementById('closePopup').addEventListener('click', () => {
+    document.getElementById('popup').style.display = 'none';
+});
+
+// Add event listeners to each inmate-item
+document.querySelectorAll('.inmate-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const inmateId = this.getAttribute('data-inmate-id');
+        showPopup(inmateId);
+    });
+});
+
+
+// Change date
+document.getElementById('date').addEventListener('change', function () {
+    const selectedDate = this.value; // Get the selected date from the input
+
+    if (selectedDate) {
+        // Construct the new URL
+        const newUrl = `/get_by_date/${selectedDate}`;
+
+        // Update the URL and reload the page with new data
+        window.location.href = newUrl;
     }
 });
