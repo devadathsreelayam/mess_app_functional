@@ -156,3 +156,6 @@ document.getElementById('date').addEventListener('change', function () {
 document.getElementById('closePopup').addEventListener('click', () => {
     document.getElementById('popup').style.display = 'none';
 });
+document.getElementById('cancel').addEventListener('click', () => {
+    document.getElementById('popup').style.display = 'none';
+});
