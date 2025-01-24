@@ -1,6 +1,9 @@
 from flask import Flask, render_template, jsonify, redirect, url_for, request
 import pymysql
 import datetime
+import calendar
+
+import queries
 
 app = Flask(__name__)
 
@@ -11,6 +14,23 @@ def get_db_connection():
         password='root',
         database='mess'
     )
+
+
+def get_first_and_last_dates(month_name, year):
+    # Convert the month name to a number (1-12)
+    month_number = list(calendar.month_name).index(month_name)
+
+    if month_number == 0:
+        raise ValueError("Invalid month name")
+
+    # Get the first date of the month
+    first_date = datetime.datetime(year, month_number, 1).date()
+
+    # Get the last day of the month
+    last_day = calendar.monthrange(year, month_number)[1]
+    last_date = datetime.datetime(year, month_number, last_day).date()
+
+    return first_date, last_date
 
 @app.route('/')
 def index():
@@ -62,7 +82,17 @@ def summery():
         month = request.args.get('month')
         year = request.args.get('year')
         if month and year:
-            return jsonify({'message': f'Received a month-based request', 'month': month, 'year': year}), 200
+            first_date, last_date = get_first_and_last_dates(month, int(year))
+            connection = get_db_connection()
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(queries.monthly_summery_query, (first_date, last_date))
+
+            result = cursor.fetchall()
+            print(result)
+            cursor.close()
+
+            return render_template('monthly_summery.html', month=month, year=year, result=result)
         else:
             return jsonify({'error': 'Month and year are required for month-based requests'}), 400
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Summery</title>
+</head>
+<body>
+    <h1>Monthly Summery of {{ month }}, {{ year }}</h1>
+    <table border="1">
+        <tr>
+            <th>Mess No.</th>
+            <th>Inmate Name</th>
+            <th>Department</th>
+            <th>ABLC</th>
+            <th>Join Count</th>
+            <th>Guest Count</th>
+            <th>SG Count</th>
+        </tr>
+
+        {% for row in result %}
+        <tr>
+            <td>{{ row['mess_no'] }}</td>
+            <td>{{ row['inmate_name'] }}</td>
+            <td>{{ row['department'] }}</td>
+            <td>{{ "ABLC" if row['is_ablc'] else "" }}</td>
+            <td>{{ row['join_count'] }}</td>
+            <td>{{ row['guest_count'] }}</td>
+            <td>{{ row['sg_count'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
