@@ -14,6 +14,10 @@ def get_db_connection():
 
 @app.route('/')
 def index():
+    return render_template('landing.html')
+
+@app.route('/log_meals')
+def log_meals():
     today = datetime.date.today().strftime("%Y-%m-%d")
     return redirect(url_for('get_by_date', date=today))
 
