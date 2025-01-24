@@ -1,3 +1,5 @@
+var messInStatus; // in or out
+
 // Add event listener to the search bar
 document.getElementById("search").addEventListener("input", function() {
     const searchTerm = this.value.toLowerCase(); // Get the search term and convert to lowercase
@@ -28,7 +30,14 @@ document.addEventListener("keydown", function(event) {
 // Popup functionality
 // Function to show the popup with inmate details
 function showPopup(inmateId) {
-    fetch(`/get_inmate_details/${inmateId}`)
+    const date = document.getElementById('date').value;
+
+    if (!date) {
+        alert('Please select date.');
+        return;
+    }
+
+    fetch(`/get_inmate_details/${inmateId}?date=${date}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -38,6 +47,50 @@ function showPopup(inmateId) {
                 document.querySelector('#popupDept span').innerText = data.department;
                 document.querySelector('#popupMessNumber span').innerText = data.mess_number;
                 document.getElementById('popup').style.display = 'flex';
+
+                // Alter the global status variable
+                messInStatus = data.status;
+
+                if (data.status == 'in') {
+                    // Change the status button to in
+                    const messStatusButton = document.getElementById('mess-status');
+                    messStatusButton.innerText = 'MESS IN';
+                    messStatusButton.classList.remove('out');
+                    messStatusButton.classList.add('in');
+
+                    // Disable the SG button when inmate is IN
+                    document.getElementById('sg-dec').disabled = true;
+                    document.getElementById('sg-inc').disabled = true;
+
+                    // Enable the GUEST button when inmate is IN
+                    document.getElementById('guest-dec').disabled = false;
+                    document.getElementById('guest-inc').disabled = false;
+                } else {
+                    // Change the status button to out
+                    const messStatusButton = document.getElementById('mess-status');
+                    messStatusButton.innerText = 'MESS IN';
+                    messStatusButton.classList.add('out');
+                    messStatusButton.classList.remove('in');
+
+                    // Enable the SG button when inmate is OUT
+                    document.getElementById('sg-dec').disabled = false;
+                    document.getElementById('sg-inc').disabled = false;
+
+                    // Disable the GUEST button when inmate is OUT
+                    document.getElementById('guest-dec').disabled = true;
+                    document.getElementById('guest-inc').disabled = true;
+                }
+
+                // Disable SG and GUEST for ABLC inmates
+                if (data.is_ablc == true) {
+                    // Disable the GUEST button
+                    document.getElementById('guest-dec').disabled = true;
+                    document.getElementById('guest-inc').disabled = true;
+
+                    // Disable the SG button
+                    document.getElementById('sg-dec').disabled = true;
+                    document.getElementById('sg-inc').disabled = true;
+                }
             }
         });
 }

@@ -282,6 +282,11 @@ h1, h2 {
     font-weight: 700;
 }
 
+.counter-button:disabled {
+    background-color: rgb(232, 129, 175);
+    cursor: not-allowed;
+}
+
 #guest-count, #sg-count {
     margin: 0 5px;
 }

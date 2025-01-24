@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, redirect, url_for
+from flask import Flask, render_template, jsonify, redirect, url_for, request
 import pymysql
 import datetime
 
@@ -32,10 +32,16 @@ def get_by_date(date):
 
 @app.route('/get_inmate_details/<int:inmate_id>', methods=['GET'])
 def get_inmate_details(inmate_id):
+    # Get date from the request
+    date = request.args.get('date')
+
+    if not date:
+        return jsonify({'error': 'Date is required'}), 400
+
     # Fetch inmate details from the database
     connection = get_db_connection()
     with connection.cursor() as cursor:
-        cursor.execute('SELECT inmate_name, department, mess_no FROM inmates WHERE mess_no = %s', (inmate_id,))
+        cursor.execute('SELECT i.*, m.in_status FROM inmates i LEFT JOIN mess_status m USING(mess_no) WHERE mess_no = %s AND m.update_date = %s', (inmate_id, date))
         inmate = cursor.fetchone()
 
     connection.close()
@@ -45,7 +51,9 @@ def get_inmate_details(inmate_id):
         return jsonify({
             'name': inmate[0],
             'department': inmate[1],
-            'mess_number': inmate[2]
+            'mess_number': inmate[2],
+            'is_ablc': inmate[3],
+            'status': inmate[4],
         })
     else:
         return jsonify({'error': 'Inmate not found'}), 404
