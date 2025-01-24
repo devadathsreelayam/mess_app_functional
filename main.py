@@ -217,6 +217,45 @@ def update_inmate_status():
         print(f"Error: {e}")
         return jsonify({'error': 'Failed to update inmate status.'}), 500
 
+@app.route('/add_inmate')
+def add_inmate():
+    return render_template('add_inmate.html')
+
+@app.route('/save_inmate', methods=['POST'])
+def save_inmate():
+    try:
+        mess_no = request.form.get('mess_no')
+        name = request.form.get('inmate_name')
+        department = request.form.get('department')
+        ablc = request.form.get('ablc')
+
+        ablc = 1 if ablc == 'ablc' else 0
+
+        print(mess_no, name, department, ablc)
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """INSERT INTO inmates (mess_no, inmate_name, department, is_ablc)
+               VALUES (%s, %s, %s, %s);""", (mess_no, name, department, ablc)
+        )
+
+        cursor.execute(
+            """INSERT INTO mess_status (mess_no, update_date, in_status)
+               VALUES (%s, CURDATE(), %s);""", (mess_no, 'out')
+        )
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return jsonify({'message': 'Inmate record saved successfully!'}), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Failed to save inmate record.'}), 500
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

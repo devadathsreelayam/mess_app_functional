@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inmate</title>
+</head>
+<body>
+    <h1>Add Inmate</h1>
+    <form action="/save_inmate" method="POST">
+        <label for="mess_no">Mess Number</label>
+        <input type="text" name="mess_no" id="mess_no" placeholder="Enter Mess Number"><br><br>
+
+        <label for="inmate_name">Name of Inmate</label>
+        <input type="text" name="inmate_name" id="inmate_name" placeholder="Enter Name"><br><br>
+
+        <label for="department">Department of Inmate</label>
+        <input type="text" name="department" id="department" placeholder="Enter Department"><br><br>
+        
+        <label for="ablc">Inmate Type:</label>
+        <input type="radio" name="ablc" id="ablc" value="ablc">
+        <label for="ablc">ABLC</label>
+
+        <input type="radio" name="ablc" id="regular" value="regular" checked>
+        <label for="regular">Regular</label><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
