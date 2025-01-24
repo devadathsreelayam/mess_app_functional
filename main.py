@@ -21,6 +21,10 @@ def log_meals():
     today = datetime.date.today().strftime("%Y-%m-%d")
     return redirect(url_for('get_by_date', date=today))
 
+@app.route('/summery')
+def summery():
+    return render_template('summery.html')
+
 # Fixed route definition: use <string:date> instead of <str:date>
 @app.route('/get_by_date/<string:date>', methods=['GET'])
 def get_by_date(date):
