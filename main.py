@@ -182,6 +182,8 @@ def update_inmate_status():
         breakfast = data.get('breakfast')
         lunch = data.get('lunch')
         dinner = data.get('dinner')
+        guest_count = data.get('guest_count')
+        sg_count = data.get('sg_count')
 
         connection = get_db_connection()
         cursor = connection.cursor()
@@ -202,6 +204,15 @@ def update_inmate_status():
                                        lunch = VALUES(lunch), 
                                        dinner = VALUES(dinner);""",
             (mess_no, date, breakfast, lunch, dinner)
+        )
+
+        # Update or insert into guest_logs
+        cursor.execute(
+            """INSERT INTO guest_logs (mess_no, log_date, guest_count, sg_count) 
+               VALUES (%s, %s, %s, %s) 
+               ON DUPLICATE KEY UPDATE guest_count = VALUES(guest_count), 
+                                       sg_count = VALUES(sg_count);""",
+            (mess_no, date, guest_count, sg_count)
         )
 
         connection.commit()

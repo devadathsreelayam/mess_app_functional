@@ -115,6 +115,29 @@ function showPopup(inmateId, date) {
 
                 guestCountLabel.innerText = inmate.guestCount;
                 sgCountLabel.innerText = inmate.sgCount;
+
+                const guestIncButton = document.getElementById('guest-inc');
+                const guestDecButton = document.getElementById('guest-dec');
+                const sgIncButton = document.getElementById('sg-inc');
+                const sgDecButton = document.getElementById('sg-dec');
+
+                guestIncButton.addEventListener('click', () => {
+                    inmate.guestCount += 1;
+                    guestCountLabel.innerText = inmate.guestCount;
+                });
+                guestDecButton.addEventListener('click', () => {
+                    inmate.guestCount -= 1;
+                    guestCountLabel.innerText = inmate.guestCount;
+                });
+
+                sgIncButton.addEventListener('click', () => {
+                    inmate.sgCount += 1;
+                    sgCountLabel.innerText = inmate.sgCount;
+                });
+                sgDecButton.addEventListener('click', () => {
+                    inmate.sgCount -= 1;
+                    sgCountLabel.innerText = inmate.sgCount;
+                });
             }
         })
         .catch(error => {
@@ -186,7 +209,9 @@ document.getElementById('save').addEventListener('click', () => {
         status: inmate.status,
         breakfast: inmate.breakfast ? 1 : 0,
         lunch: inmate.lunch ? 1 : 0,
-        dinner: inmate.dinner ? 1 : 0
+        dinner: inmate.dinner ? 1 : 0,
+        guest_count: inmate.guestCount,
+        sg_count: inmate.sgCount
     };
 
     // Send the updated data to the server
