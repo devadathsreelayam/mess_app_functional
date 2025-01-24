@@ -79,7 +79,9 @@ function showPopup(inmateId, date) {
                     isAblc: data.is_ablc,
                     breakfast: data.breakfast,  // Ensure this field is correctly populated
                     lunch: data.lunch,
-                    dinner: data.dinner
+                    dinner: data.dinner,
+                    guestCount: data.guest_count,
+                    sgCount: data.sg_count
                 };
 
                 document.querySelector('#popupName span').innerText = inmate.name;
@@ -107,6 +109,12 @@ function showPopup(inmateId, date) {
                 breakfastButton.addEventListener('click', () => toggleMealButton(breakfastButton, 'breakfast', inmate));
                 lunchButton.addEventListener('click', () => toggleMealButton(lunchButton, 'lunch', inmate));
                 dinnerButton.addEventListener('click', () => toggleMealButton(dinnerButton, 'dinner', inmate));
+
+                const guestCountLabel = document.getElementById('guest-count');
+                const sgCountLabel = document.getElementById('sg-count');
+
+                guestCountLabel.innerText = inmate.guestCount;
+                sgCountLabel.innerText = inmate.sgCount;
             }
         })
         .catch(error => {

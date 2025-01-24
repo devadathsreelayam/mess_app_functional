@@ -143,11 +143,12 @@ def get_inmate_details(inmate_id):
     connection = get_db_connection()
     with connection.cursor(pymysql.cursors.DictCursor) as cursor:
         cursor.execute(
-            """SELECT i.*, m.in_status, ml.breakfast, ml.lunch, ml.dinner
-               FROM inmates i
-               LEFT JOIN mess_status m ON i.mess_no = m.mess_no AND m.update_date = %s
-               LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s
-               WHERE i.mess_no = %s;""", (date, date, inmate_id)
+            """SELECT i.*, m.in_status, ml.breakfast, ml.lunch, ml.dinner, gl.guest_count, gl.sg_count
+                FROM inmates i
+                LEFT JOIN mess_status m ON i.mess_no = m.mess_no AND m.update_date = %s
+                LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s
+                LEFT JOIN guest_logs gl ON i.mess_no = gl.mess_no AND gl.log_date = %s
+                WHERE i.mess_no = %s;""", (date, date, date, inmate_id)
         )
         inmate = cursor.fetchone()
 
@@ -164,6 +165,8 @@ def get_inmate_details(inmate_id):
             'breakfast': inmate['breakfast'] if inmate['breakfast'] is not None else 0,
             'lunch': inmate['lunch'] if inmate['lunch'] is not None else 0,
             'dinner': inmate['dinner'] if inmate['lunch'] is not None else 0,
+            'guest_count': inmate['guest_count'],
+            'sg_count': inmate['sg_count'],
         })
     else:
         return jsonify({'error': 'Inmate not found'}), 404
