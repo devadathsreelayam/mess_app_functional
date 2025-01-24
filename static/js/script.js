@@ -1,3 +1,5 @@
+let inmate = null;
+
 // Utility function to set button states
 function setButtonState(isIn, isAblc) {
     const sgDecButton = document.getElementById('sg-dec');
@@ -68,7 +70,7 @@ function showPopup(inmateId, date) {
             if (data.error) {
                 alert(data.error);
             } else {
-                const inmate = {
+                inmate = {
                     id: inmateId,
                     name: data.name,
                     department: data.department,
@@ -158,4 +160,47 @@ document.getElementById('closePopup').addEventListener('click', () => {
 });
 document.getElementById('cancel').addEventListener('click', () => {
     document.getElementById('popup').style.display = 'none';
+});
+
+// Update the changes back to the database
+document.getElementById('save').addEventListener('click', () => {
+    const date = document.getElementById('date').value;
+
+    if (!inmate) {
+        alert('No inmate selected.');
+        return;
+    }
+
+    // Collect updated data from the global inmate object
+    const updatedData = {
+        mess_number: inmate.messNumber,
+        date: date,
+        status: inmate.status,
+        breakfast: inmate.breakfast ? 1 : 0,
+        lunch: inmate.lunch ? 1 : 0,
+        dinner: inmate.dinner ? 1 : 0
+    };
+
+    // Send the updated data to the server
+    fetch('/update_inmate_status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert('Changes saved successfully!');
+                document.getElementById('popup').style.display = 'none';
+                location.reload(); // Reload the page to reflect updates
+            }
+        })
+        .catch(error => {
+            console.error('Error saving changes:', error);
+            alert('Failed to save changes.');
+        });
 });

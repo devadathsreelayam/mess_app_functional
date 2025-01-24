@@ -73,5 +73,54 @@ def get_inmate_details(inmate_id):
         return jsonify({'error': 'Inmate not found'}), 404
 
 
+@app.route('/update_inmate_status', methods=['POST'])
+def update_inmate_status():
+    try:
+        data = request.get_json()  # Receive data as JSON
+        mess_no = data.get('mess_number')
+        date = data.get('date')
+        status = data.get('status')
+        breakfast = data.get('breakfast')
+        lunch = data.get('lunch')
+        dinner = data.get('dinner')
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Update mess status
+        try:
+            cursor.execute(
+                """UPDATE mess_status
+                SET in_status = %s
+                WHERE mess_no = %s AND update_date = %s;""", (status, mess_no, date)
+            )
+        except Exception:
+            cursor.execute(
+                """INSERT INTO mess_status (mess_no, update_date, in_status) 
+                   VALUES (%s, %s, %s) 
+                   ON DUPLICATE KEY UPDATE in_status = VALUES(in_status);""",
+                (mess_no, date, status)
+            )
+
+        # Update meals
+        cursor.execute(
+            """INSERT INTO mess_logs (mess_no, log_date, breakfast, lunch, dinner) 
+               VALUES (%s, %s, %s, %s, %s) 
+               ON DUPLICATE KEY UPDATE breakfast = VALUES(breakfast), 
+                                       lunch = VALUES(lunch), 
+                                       dinner = VALUES(dinner);""",
+            (mess_no, date, breakfast, lunch, dinner)
+        )
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return jsonify({'message': 'Status and meals updated successfully!'}), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Failed to update inmate status.'}), 500
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
