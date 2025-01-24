@@ -5,6 +5,10 @@ function setButtonState(isIn, isAblc) {
     const guestDecButton = document.getElementById('guest-dec');
     const guestIncButton = document.getElementById('guest-inc');
 
+    const breakfastButton = document.getElementById('breakfast');
+    const lunchButton = document.getElementById('lunch');
+    const dinnerButton = document.getElementById('dinner');
+
     if (isAblc) {
         sgDecButton.disabled = true;
         sgIncButton.disabled = true;
@@ -15,6 +19,10 @@ function setButtonState(isIn, isAblc) {
         sgIncButton.disabled = isIn;
         guestDecButton.disabled = !isIn;
         guestIncButton.disabled = !isIn;
+
+        breakfastButton.disabled = !isIn;
+        lunchButton.disabled = !isIn;
+        dinnerButton.disabled = !isIn;
     }
 }
 
@@ -35,6 +43,16 @@ function toggleMessStatus(messStatusButton, inmate) {
     }
 
     setButtonState(inmate.status === 'in', inmate.isAblc);
+}
+
+function toggleMealButton(mealButton, property, inmate) {
+    if (inmate[property]) {
+        mealButton.classList.remove('active');
+        inmate[property] = false;
+    } else {
+        mealButton.classList.add('active');
+        inmate[property] = true;
+    }
 }
 
 // Function to show the popup with inmate details
@@ -83,6 +101,10 @@ function showPopup(inmateId, date) {
                 breakfastButton.classList.toggle('active', inmate.breakfast);
                 lunchButton.classList.toggle('active', inmate.lunch);
                 dinnerButton.classList.toggle('active', inmate.dinner);
+
+                breakfastButton.addEventListener('click', () => toggleMealButton(breakfastButton, 'breakfast', inmate));
+                lunchButton.addEventListener('click', () => toggleMealButton(lunchButton, 'lunch', inmate));
+                dinnerButton.addEventListener('click', () => toggleMealButton(dinnerButton, 'dinner', inmate));
             }
         })
         .catch(error => {
