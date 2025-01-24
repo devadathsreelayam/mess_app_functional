@@ -23,17 +23,31 @@ def get_by_date(date):
     try:
         connection = get_db_connection()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
+
+        # Fetch all inmate details and their statuses
         cursor.execute(
-            """SELECT i.*, ms.update_date, ms.in_status, ml.breakfast, ml.lunch, ml.dinner
-                FROM inmates i
-                LEFT JOIN mess_status ms ON i.mess_no = ms.mess_no AND ms.update_date = %s
-                LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s;""", (date, date)
+            """
+            SELECT i.*, 
+                   COALESCE(ms.update_date, %s) AS update_date,
+                   COALESCE(ms.in_status, (
+                       SELECT in_status
+                       FROM mess_status ms2
+                       WHERE ms2.mess_no = i.mess_no AND ms2.update_date <= %s
+                       ORDER BY ms2.update_date DESC
+                       LIMIT 1
+                   )) AS in_status,
+                   ml.breakfast, ml.lunch, ml.dinner
+            FROM inmates i
+            LEFT JOIN mess_status ms ON i.mess_no = ms.mess_no AND ms.update_date = %s
+            LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s;
+            """,
+            (date, date, date, date)
         )
         inmates = cursor.fetchall()
         cursor.close()
         return render_template('index.html', inmates=inmates, selected_date=date)
-    except:
-        return "Some error occurred!"
+    except Exception as e:
+        return f"Error: {e}", 500
 
 @app.route('/get_inmate_details/<int:inmate_id>', methods=['GET'])
 def get_inmate_details(inmate_id):

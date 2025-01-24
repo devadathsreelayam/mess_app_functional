@@ -65,6 +65,8 @@
                     <span class="status in">In</span>
                 {% elif inmate['in_status'] == 'out' %}
                     <span class="status out">Out</span>
+                {% else %}
+                    <span class="status out">N/A</span>
                 {% endif %}
             </div>
         </div>
