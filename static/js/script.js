@@ -1,37 +1,44 @@
-var messInStatus; // in or out
+// Utility function to set button states
+function setButtonState(isIn, isAblc) {
+    const sgDecButton = document.getElementById('sg-dec');
+    const sgIncButton = document.getElementById('sg-inc');
+    const guestDecButton = document.getElementById('guest-dec');
+    const guestIncButton = document.getElementById('guest-inc');
 
-// Add event listener to the search bar
-document.getElementById("search").addEventListener("input", function() {
-    const searchTerm = this.value.toLowerCase(); // Get the search term and convert to lowercase
-    const inmates = document.querySelectorAll(".inmate-item"); // Select all inmate-item divs
-
-    inmates.forEach((inmate) => {
-        const name = inmate.querySelector(".name").textContent.toLowerCase(); // Get name text
-        const messNumber = inmate.querySelector(".mess-number").textContent.toLowerCase(); // Get mess number text
-
-        // Check if the search term matches either name or mess number
-        if (name.includes(searchTerm) || messNumber.includes(searchTerm)) {
-            inmate.style.display = "grid"; // Show the matching inmate
-        } else {
-            inmate.style.display = "none"; // Hide the non-matching inmate
-        }
-    });
-});
-
-document.addEventListener("keydown", function(event) {
-    // Check if the Ctrl key and F key are pressed simultaneously
-    if (event.ctrlKey && event.key === "f") {
-        event.preventDefault(); // Prevent the default browser find behavior
-        document.getElementById("search").focus(); // Set focus to the search bar
+    if (isAblc) {
+        sgDecButton.disabled = true;
+        sgIncButton.disabled = true;
+        guestDecButton.disabled = true;
+        guestIncButton.disabled = true;
+    } else {
+        sgDecButton.disabled = isIn;
+        sgIncButton.disabled = isIn;
+        guestDecButton.disabled = !isIn;
+        guestIncButton.disabled = !isIn;
     }
-});
+}
 
+// Function to toggle mess status
+function toggleMessStatus(messStatusButton, inmate) {
+    if (inmate.status === 'out') {
+        // Change to IN
+        messStatusButton.classList.add('in');
+        messStatusButton.classList.remove('out');
+        messStatusButton.innerText = 'MESS IN';
+        inmate.status = 'in';
+    } else {
+        // Change to OUT
+        messStatusButton.classList.add('out');
+        messStatusButton.classList.remove('in');
+        messStatusButton.innerText = 'MESS OUT';
+        inmate.status = 'out';
+    }
 
-// Popup functionality
+    setButtonState(inmate.status === 'in', inmate.isAblc);
+}
+
 // Function to show the popup with inmate details
-function showPopup(inmateId) {
-    const date = document.getElementById('date').value;
-
+function showPopup(inmateId, date) {
     if (!date) {
         alert('Please select date.');
         return;
@@ -43,81 +50,71 @@ function showPopup(inmateId) {
             if (data.error) {
                 alert(data.error);
             } else {
-                document.querySelector('#popupName span').innerText = data.name;
-                document.querySelector('#popupDept span').innerText = data.department;
-                document.querySelector('#popupMessNumber span').innerText = data.mess_number;
+                const inmate = {
+                    id: inmateId,
+                    name: data.name,
+                    department: data.department,
+                    messNumber: data.mess_number,
+                    status: data.status,
+                    isAblc: data.is_ablc
+                };
+
+                document.querySelector('#popupName span').innerText = inmate.name;
+                document.querySelector('#popupDept span').innerText = inmate.department;
+                document.querySelector('#popupMessNumber span').innerText = inmate.messNumber;
                 document.getElementById('popup').style.display = 'flex';
 
-                // Alter the global status variable
-                messInStatus = data.status;
+                const messStatusButton = document.getElementById('mess-status');
+                messStatusButton.innerText = inmate.status === 'in' ? 'MESS IN' : 'MESS OUT';
+                messStatusButton.classList.toggle('in', inmate.status === 'in');
+                messStatusButton.classList.toggle('out', inmate.status === 'out');
 
-                if (data.status == 'in') {
-                    // Change the status button to in
-                    const messStatusButton = document.getElementById('mess-status');
-                    messStatusButton.innerText = 'MESS IN';
-                    messStatusButton.classList.remove('out');
-                    messStatusButton.classList.add('in');
+                setButtonState(inmate.status === 'in', inmate.isAblc);
 
-                    // Disable the SG button when inmate is IN
-                    document.getElementById('sg-dec').disabled = true;
-                    document.getElementById('sg-inc').disabled = true;
-
-                    // Enable the GUEST button when inmate is IN
-                    document.getElementById('guest-dec').disabled = false;
-                    document.getElementById('guest-inc').disabled = false;
-                } else {
-                    // Change the status button to out
-                    const messStatusButton = document.getElementById('mess-status');
-                    messStatusButton.innerText = 'MESS IN';
-                    messStatusButton.classList.add('out');
-                    messStatusButton.classList.remove('in');
-
-                    // Enable the SG button when inmate is OUT
-                    document.getElementById('sg-dec').disabled = false;
-                    document.getElementById('sg-inc').disabled = false;
-
-                    // Disable the GUEST button when inmate is OUT
-                    document.getElementById('guest-dec').disabled = true;
-                    document.getElementById('guest-inc').disabled = true;
-                }
-
-                // Disable SG and GUEST for ABLC inmates
-                if (data.is_ablc == true) {
-                    // Disable the GUEST button
-                    document.getElementById('guest-dec').disabled = true;
-                    document.getElementById('guest-inc').disabled = true;
-
-                    // Disable the SG button
-                    document.getElementById('sg-dec').disabled = true;
-                    document.getElementById('sg-inc').disabled = true;
-                }
+                messStatusButton.addEventListener('click', () => toggleMessStatus(messStatusButton, inmate));
             }
         });
 }
 
-// Close the popup
-document.getElementById('closePopup').addEventListener('click', () => {
-    document.getElementById('popup').style.display = 'none';
-});
+// Function to handle search functionality
+document.getElementById('search').addEventListener('input', function () {
+    const searchTerm = this.value.toLowerCase();
+    const inmates = document.querySelectorAll('.inmate-item');
 
-// Add event listeners to each inmate-item
-document.querySelectorAll('.inmate-item').forEach(item => {
-    item.addEventListener('click', function() {
-        const inmateId = this.getAttribute('data-inmate-id');
-        showPopup(inmateId);
+    inmates.forEach(inmate => {
+        const name = inmate.querySelector('.name').textContent.toLowerCase();
+        const messNumber = inmate.querySelector('.mess-number').textContent.toLowerCase();
+
+        inmate.style.display = name.includes(searchTerm) || messNumber.includes(searchTerm) ? 'grid' : 'none';
     });
 });
 
-
-// Change date
-document.getElementById('date').addEventListener('change', function () {
-    const selectedDate = this.value; // Get the selected date from the input
-
-    if (selectedDate) {
-        // Construct the new URL
-        const newUrl = `/get_by_date/${selectedDate}`;
-
-        // Update the URL and reload the page with new data
-        window.location.href = newUrl;
+// Shortcut to focus on search bar
+document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey && event.key === 'f') {
+        event.preventDefault();
+        document.getElementById('search').focus();
     }
+});
+
+// Add event listeners to inmate items
+document.querySelectorAll('.inmate-item').forEach(item => {
+    item.addEventListener('click', function () {
+        const inmateId = this.getAttribute('data-inmate-id');
+        const date = document.getElementById('date').value;
+        showPopup(inmateId, date);
+    });
+});
+
+// Change date functionality
+document.getElementById('date').addEventListener('change', function () {
+    const selectedDate = this.value;
+    if (selectedDate) {
+        window.location.href = `/get_by_date/${selectedDate}`;
+    }
+});
+
+// Close popup functionality
+document.getElementById('closePopup').addEventListener('click', () => {
+    document.getElementById('popup').style.display = 'none';
 });
