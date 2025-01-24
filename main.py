@@ -23,7 +23,12 @@ def get_by_date(date):
     try:
         connection = get_db_connection()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT i.*, m.in_status FROM inmates i LEFT JOIN mess_status m USING (mess_no) WHERE m.update_date = %s", (date,))
+        cursor.execute(
+            """SELECT i.*, ms.update_date, ms.in_status, ml.breakfast, ml.lunch, ml.dinner
+                FROM inmates i
+                LEFT JOIN mess_status ms ON i.mess_no = ms.mess_no AND ms.update_date = %s
+                LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s;""", (date, date)
+        )
         inmates = cursor.fetchall()
         cursor.close()
         return render_template('index.html', inmates=inmates, selected_date=date)

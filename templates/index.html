@@ -39,9 +39,28 @@
             </div>
             <span class="mess-number">{{ inmate['mess_no'] }}</span>
             <div class="tags">
-                <span class="tag breakfast active">B</span>
-                <span class="tag lunch active">L</span>
-                <span class="tag dinner disabled">D</span>
+                <!-- Breakfast status update -->
+                {% if inmate['breakfast'] %}
+                    <span class="tag breakfast active">B</span>
+                {% else %}
+                    <span class="tag breakfast disabled">B</span>
+                {% endif %}
+
+                <!-- Lunch status update -->
+                {% if inmate['lunch'] %}
+                    <span class="tag lunch active">L</span>
+                {% else %}
+                    <span class="tag lunch disabled">L</span>
+                {% endif %}
+
+                <!-- Dinner status update -->
+                {% if inmate['dinner'] %}
+                    <span class="tag dinner active">D</span>
+                {% else %}
+                    <span class="tag dinner disabled">D</span>
+                {% endif %}
+
+                <!-- Mess In status update -->
                 {% if inmate['in_status'] == 'in' %}
                     <span class="status in">In</span>
                 {% elif inmate['in_status'] == 'out' %}
