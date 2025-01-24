@@ -17,7 +17,7 @@ FROM
             i.is_ablc,
             COUNT(ms.in_status) AS join_count
         FROM inmates i
-        JOIN mess_status ms ON i.mess_no = ms.mess_no
+        LEFT JOIN mess_status ms ON i.mess_no = ms.mess_no
             AND ms.in_status = 'in'
             AND ms.update_date BETWEEN %s AND %s
         GROUP BY i.mess_no, i.inmate_name, i.department
