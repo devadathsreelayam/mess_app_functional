@@ -183,22 +183,15 @@ def update_inmate_status():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Update mess status
-        try:
-            cursor.execute(
-                """UPDATE mess_status
-                SET in_status = %s
-                WHERE mess_no = %s AND update_date = %s;""", (status, mess_no, date)
-            )
-        except Exception:
-            cursor.execute(
-                """INSERT INTO mess_status (mess_no, update_date, in_status) 
-                   VALUES (%s, %s, %s) 
-                   ON DUPLICATE KEY UPDATE in_status = VALUES(in_status);""",
-                (mess_no, date, status)
-            )
+        # Update or insert into mess_status
+        cursor.execute(
+            """INSERT INTO mess_status (mess_no, update_date, in_status)
+               VALUES (%s, %s, %s)
+               ON DUPLICATE KEY UPDATE in_status = VALUES(in_status);""",
+            (mess_no, date, status)
+        )
 
-        # Update meals
+        # Update or insert into mess_logs
         cursor.execute(
             """INSERT INTO mess_logs (mess_no, log_date, breakfast, lunch, dinner) 
                VALUES (%s, %s, %s, %s, %s) 
