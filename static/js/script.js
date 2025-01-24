@@ -56,7 +56,10 @@ function showPopup(inmateId, date) {
                     department: data.department,
                     messNumber: data.mess_number,
                     status: data.status,
-                    isAblc: data.is_ablc
+                    isAblc: data.is_ablc,
+                    breakfast: data.breakfast,  // Ensure this field is correctly populated
+                    lunch: data.lunch,
+                    dinner: data.dinner
                 };
 
                 document.querySelector('#popupName span').innerText = inmate.name;
@@ -72,9 +75,22 @@ function showPopup(inmateId, date) {
                 setButtonState(inmate.status === 'in', inmate.isAblc);
 
                 messStatusButton.addEventListener('click', () => toggleMessStatus(messStatusButton, inmate));
+
+                const breakfastButton = document.getElementById('breakfast');
+                const lunchButton = document.getElementById('lunch');
+                const dinnerButton = document.getElementById('dinner');
+
+                breakfastButton.classList.toggle('active', inmate.breakfast);
+                lunchButton.classList.toggle('active', inmate.lunch);
+                dinnerButton.classList.toggle('active', inmate.dinner);
             }
+        })
+        .catch(error => {
+            console.error('Error fetching inmate details:', error);
+            alert('Error fetching inmate details.');
         });
 }
+
 
 // Function to handle search functionality
 document.getElementById('search').addEventListener('input', function () {

@@ -45,8 +45,14 @@ def get_inmate_details(inmate_id):
 
     # Fetch inmate details from the database
     connection = get_db_connection()
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT i.*, m.in_status FROM inmates i LEFT JOIN mess_status m USING(mess_no) WHERE mess_no = %s AND m.update_date = %s', (inmate_id, date))
+    with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+        cursor.execute(
+            """SELECT i.*, m.in_status, ml.breakfast, ml.lunch, ml.dinner
+               FROM inmates i
+               LEFT JOIN mess_status m ON i.mess_no = m.mess_no AND m.update_date = %s
+               LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s
+               WHERE i.mess_no = %s;""", (date, date, inmate_id)
+        )
         inmate = cursor.fetchone()
 
     connection.close()
@@ -54,14 +60,18 @@ def get_inmate_details(inmate_id):
     # Return the inmate details as JSON response
     if inmate:
         return jsonify({
-            'name': inmate[0],
-            'department': inmate[1],
-            'mess_number': inmate[2],
-            'is_ablc': inmate[3],
-            'status': inmate[4],
+            'name': inmate['inmate_name'],
+            'department': inmate['department'],
+            'mess_number': inmate['mess_no'],
+            'is_ablc': inmate['is_ablc'],
+            'status': inmate['in_status'],
+            'breakfast': inmate['breakfast'] if inmate['breakfast'] is not None else 0,
+            'lunch': inmate['lunch'] if inmate['lunch'] is not None else 0,
+            'dinner': inmate['dinner'] if inmate['lunch'] is not None else 0,
         })
     else:
         return jsonify({'error': 'Inmate not found'}), 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
