@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Summery</title>
+</head>
+<body>
+    <h1>Daily Summery of {{ summery_date }}</h1>
+    <table border="1">
+        <tr>
+            <th>Category</th>
+            <th>Count</th>
+        </tr>
+
+        <tr>
+            <td>Breakfast</td>
+            <td>{{ brekfast_count }}</td>
+        </tr>
+
+        <tr>
+            <td>Lunch</td>
+            <td>{{ lunch_count }}</td>
+        </tr>
+
+        <tr>
+            <td>Dinner</td>
+            <td>{{ dinner_count }}</td>
+        </tr>
+
+        <tr>
+            <td>Total Mess In</td>
+            <td>{{ join_count }}</td>
+        </tr>
+
+        <tr>
+            <td>Total Inmates</td>
+            <td>{{ inmate_count }}</td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -21,9 +21,53 @@ def log_meals():
     today = datetime.date.today().strftime("%Y-%m-%d")
     return redirect(url_for('get_by_date', date=today))
 
-@app.route('/summery')
+@app.route('/summery', methods=['GET'])
 def summery():
-    return render_template('summery.html')
+    if not request.args:
+        return render_template('summery.html')
+
+    # Extract the 'choose-type' parameter from the query string
+    choose_type = request.args.get('choose-type')
+
+    # Handle based on 'choose-type'
+    if choose_type == 'date':
+        # Get the 'date' parameter
+        date = request.args.get('date')
+        if date:
+            connection = get_db_connection()
+            cursor = connection.cursor()
+            cursor.execute('SELECT COUNT(*) FROM inmates;')
+            inmate_count = cursor.fetchone()[0]
+
+            cursor.execute(
+                """SELECT COUNT(breakfast), COUNT(lunch), COUNT(dinner) FROM mess_logs
+                WHERE log_date = %s;""", (date,)
+            )
+            result = cursor.fetchone()
+            breakfast = result[0]
+            lunch = result[1]
+            dinner = result[2]
+
+            cursor.execute("SELECT COUNT(*) FROM mess_status WHERE in_status = 'in' AND update_date = %s;", (date,))
+            join_count = cursor.fetchone()[0]
+
+            cursor.close()
+
+            return render_template('daily_summery.html', summery_date=date, brekfast_count=breakfast, lunch_count=lunch, dinner_count=dinner, join_count=join_count, inmate_count=inmate_count)
+        else:
+            return jsonify({'error': 'Date is required for date-based requests'}), 400
+
+    elif choose_type == 'month':
+        # Get the 'month' and 'year' parameters
+        month = request.args.get('month')
+        year = request.args.get('year')
+        if month and year:
+            return jsonify({'message': f'Received a month-based request', 'month': month, 'year': year}), 200
+        else:
+            return jsonify({'error': 'Month and year are required for month-based requests'}), 400
+
+    # If 'choose-type' is invalid or not provided
+    return jsonify({'error': 'Invalid or missing choose-type parameter'}), 400
 
 # Fixed route definition: use <string:date> instead of <str:date>
 @app.route('/get_by_date/<string:date>', methods=['GET'])
