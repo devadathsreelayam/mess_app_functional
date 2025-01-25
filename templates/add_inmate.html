@@ -1,30 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Inmate</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Add Inmate{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_inmate.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
     <h1>Add Inmate</h1>
     <form action="/save_inmate" method="POST">
-        <label for="mess_no">Mess Number</label>
-        <input type="text" name="mess_no" id="mess_no" placeholder="Enter Mess Number" required><br><br>
+        <div class="input-item">
+            <label for="mess_no" class="form-label">Mess Number</label>
+            <input type="text" class="form-control" name="mess_no" id="mess_no" placeholder="Enter Mess Number" required>
+        </div>
 
-        <label for="inmate_name">Name of Inmate</label>
-        <input type="text" name="inmate_name" id="inmate_name" placeholder="Enter Name" required><br><br>
+        <div class="input-item">
+            <label for="inmate_name" class="form-label">Name of Inmate</label>
+            <input type="text" class="form-control" name="inmate_name" id="inmate_name" placeholder="Enter Name" required>
+        </div>
 
-        <label for="department">Department of Inmate</label>
-        <input type="text" name="department" id="department" placeholder="Enter Department" required><br><br>
-        
-        <label for="ablc">Inmate Type:</label>
-        <input type="radio" name="ablc" id="ablc" value="ablc">
-        <label for="ablc">ABLC</label>
+        <div class="input-item">
+            <label for="department" class="form-label">Department of Inmate</label>
+            <input type="text" class="form-control" name="department" id="department" placeholder="Enter Department" required>
+        </div>
 
-        <input type="radio" name="ablc" id="regular" value="regular" checked>
-        <label for="regular">Regular</label><br><br>
+        <div class="input-item">
+            <label for="ablc">ABLC</label>
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="ablc" value="ablc">
+                    <label class="form-check-label" for="ablc">ABLC</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="regular" value="regular" checked>
+                    <label class="form-check-label" for="regular">Regular</label>
+                </div>
+            </div>
+        </div>
 
-        <input type="submit" value="Submit">
+        <input type="submit" class="btn btn-long-m" value="Submit">
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
