@@ -1,0 +1,64 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+h1 {
+    font-weight: 500;
+    margin: 20px 0;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+label {
+    font-size: 0.9rem;
+}
+
+.form-control {
+    height: 2.5rem;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: 2px solid #bbb;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border: 2px solid transparent;
+    box-shadow: 0 3px 5px 0 rgba(41, 128, 194, 0.2), 0 6px 10px 0 rgba(41, 128, 194, 0.19);
+    outline: 3px solid rgb(41, 128, 194);
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+@media (max-width: 650px) {
+    .container {
+        width: 90%;
+    }
+}
+
+.btn {
+    margin-top: 10px;
+    background-color: rgb(32, 100, 152);
+    border: 0;
+    height: 2.5rem;
+    color: #fff;
+    font-family: inherit;
+    border-radius: 5px;
+    cursor: pointer;
+}
