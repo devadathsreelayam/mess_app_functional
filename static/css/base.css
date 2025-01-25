@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+}
+
+nav {
+    background-color: #212529;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 3.5rem;
+    padding: 0 15px;
+    width: 100%;
+}
+
+.navbar-brand {
+    text-decoration: none;
+    color: #ddd;
+    font-weight: 500;
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
+
+.vertical-separator {
+    background-color: #ddd;
+    width: 2.5px;
+    height: 50%;
+}
+
+.navbar-toggler {
+    border: 0;
+    border-radius: 5px;
+    padding: 0rem 0.5rem;
+    background: none;
+    color: #ddd;
+    font-size: 2rem;
+    display: none;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar-toggler[state="checked"] {
+    background-color: #101113b1;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+}
+
+ul.navbar-nav {
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+li.nav-item {
+    font-size: 0.9rem;
+}
+
+a.nav-link {
+    text-decoration: none;
+    color: #FFFFFFA6;
+    transition: 0.2s ease color;
+}
+
+.nav-link:hover {
+    color: #ffffffd6;
+}
+
+.nav-link.link-active {
+    color: #FFFFFF;
+}
+
+.nav-item.button {
+    border: 2px solid #FFFFFFD6;
+    width: 6rem;
+    height: 2.2rem;
+    text-align: center;
+    line-height: 2.2rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-left: auto;
+}
+
+.nav-link.button {
+    color: #FFFFFFD6;
+    display: block;
+}
+
+.nav-link.button:hover {
+    color: #212529;
+}
+
+.nav-item.button:hover {
+    background-color: #FFFFFFD6;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    /* Hide navbar items and show the toggle button on small screens */
+    ul.navbar-nav {
+        position: absolute;
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+        margin-top: 1rem;
+        background-color: inherit;
+        padding: 0px 20px 30px 20px;
+        z-index: 100;
+        top: 2.5rem;
+        left: 0;
+    }
+
+    .nav-item {
+        width: auto;
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    .nav-item.button {
+        line-height: 1rem;
+        margin-left: 0;
+    }
+
+    .nav-link.nav-item.button {
+        display: block;
+    }
+
+
+    .navbar-toggler {
+        display: block; /* Show toggle button */
+        margin-left: auto;
+    }
+
+    .vertical-separator {
+        display: none;
+    }
+
+    /* When the navbar is toggled, show the menu items */
+    .navbar-nav.show {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+
+
+
+
