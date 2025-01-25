@@ -16,9 +16,10 @@
         <a class="navbar-brand" href="#">MH Mess</a>
         <span class="vertical-separator"></span>
         <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link link-active" aria-current="page" href="/">Log Meals</a></li>
-            <li class="nav-item"><a class="nav-link" href="/add_inmate">Add Inmate</a></li>
-            <li class="nav-item"><a class="nav-link" href="/summery">View Summary</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'index' %}link-active{% endif %}" href="{{ url_for('index') }}">Log Meals</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'add_inmate' %}link-active{% endif %}" href="{{ url_for('add_inmate') }}">Add Inmate</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'manage_inmates' %}link-active{% endif %}" href="{{ url_for('manage_inmates') }}">Manage Inmates</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'summery' %}link-active{% endif %}" href="{{ url_for('summery') }}">View Summary</a></li>
             <li class="nav-item"><a class="nav-link link-disabled" aria-disabled="true" href="#">Manage Users</a></li>
             <li class="nav-item button"><a class="nav-link button" aria-disabled="true" href="#">Logout</a></li>
         </ul>
@@ -33,7 +34,6 @@
         {% endblock %}
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/base.js')}}"></script>
     {% block scripts %}
     {% endblock %}
