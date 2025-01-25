@@ -4,6 +4,7 @@ import datetime
 import calendar
 
 import queries
+import database as db
 
 app = Flask(__name__)
 
@@ -34,7 +35,12 @@ def get_first_and_last_dates(month_name, year):
 
 @app.route('/')
 def index():
-    return render_template('landing.html')
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    return redirect(url_for('get_by_date', date=today))
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
 @app.route('/log_meals')
 def log_meals():
@@ -127,7 +133,7 @@ def get_by_date(date):
         )
         inmates = cursor.fetchall()
         cursor.close()
-        return render_template('index.html', inmates=inmates, selected_date=date)
+        return render_template('log_meals.html', inmates=inmates, selected_date=date)
     except Exception as e:
         return f"Error: {e}", 500
 
@@ -257,11 +263,55 @@ def save_inmate():
         cursor.close()
         connection.close()
 
-        return jsonify({'message': 'Inmate record saved successfully!'}), 200
+        return redirect(url_for('add_inmate'))
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': 'Failed to save inmate record.'}), 500
+    
 
+@app.route('/manage_inmates')
+def manage_inmates():
+    inmates = db.view_all_inmates()
+    print(inmates)
+    
+    if inmates:
+        return render_template('view_inmates.html', inmates=inmates)
+
+
+@app.route('/get_inmate/<int:inmate_id>', methods=['GET'])
+def get_inmate(inmate_id):
+    # Fetch inmate details from the database
+    connection = get_db_connection()
+    inmate = db.get_inmate(inmate_id)
+    connection.close()
+
+    # Return the inmate details as JSON response
+    if inmate:
+        return jsonify({
+            'name': inmate['inmate_name'],
+            'department': inmate['department'],
+            'mess_number': inmate['mess_no'],
+            'is_ablc': inmate['is_ablc']
+        })
+    else:
+        return jsonify({'error': 'Inmate not found'}), 404
+
+@app.route('/update_inmate', methods=['POST'])
+def update_inmate():
+    try:
+        mess_no = request.form.get('mess_no')
+        name = request.form.get('inmate_name')
+        department = request.form.get('department')
+        ablc = request.form.get('ablc')
+        ablc = 1 if ablc == 'ablc' else 0
+        print(mess_no, name, department, ablc)
+
+        if db.update_inmate(mess_no, name, department, ablc):
+            return redirect(url_for('view_inmates'))
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Failed to save inmate record.'}), 500
 
 
 if __name__ == '__main__':
