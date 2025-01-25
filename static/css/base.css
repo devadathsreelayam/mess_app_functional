@@ -107,7 +107,7 @@ a.nav-link {
 
 
 /* Mobile responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 805px) {
     /* Hide navbar items and show the toggle button on small screens */
     ul.navbar-nav {
         position: absolute;
@@ -155,8 +155,3 @@ a.nav-link {
         flex-direction: column;
     }
 }
-
-
-
-
-
