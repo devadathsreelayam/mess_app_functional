@@ -1,76 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary</title>
-</head>
-<body>
-    <form action="" method="get">
-        <h2>Choose Options</h2>
-        <input type="radio" name="choose-type" id="choose-date" value="date" onclick="chooseByDate()" checked>
-        <label for="choose-date">Summary by Date</label>
+{% extends "base.html" %}
 
-        <input type="radio" name="choose-type" id="choose-month" value="month" onclick="chooseByMonth()">
-        <label for="choose-month">Summary by Month</label><br><br>
+{% block title %}Summary{% endblock %}
 
-        <label for="date">Choose Date: </label>
-        <input type="date" name="date" id="date"><br><br>
+{% block content %}
+<form action="" method="get">
+    <h2>Choose Options</h2>
+    <input type="radio" name="choose-type" id="choose-date" value="date" onclick="chooseByDate()" checked>
+    <label for="choose-date">Summary by Date</label>
 
-        <label for="month">Choose Month: </label>
-        <select name="month" id="month" disabled>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
-        </select>
+    <input type="radio" name="choose-type" id="choose-month" value="month" onclick="chooseByMonth()">
+    <label for="choose-month">Summary by Month</label><br><br>
 
-        <label for="year">Choose Year: </label>
-        <select name="year" id="year" disabled>
-            <option value="2025">2025</option>
-        </select><br><br>
+    <label for="date">Choose Date: </label>
+    <input type="date" name="date" id="date"><br><br>
 
-        <input type="submit" value="Get Summery">
-    </form>
+    <label for="month">Choose Month: </label>
+    <select name="month" id="month" disabled>
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>
 
-    <script>
-        // Set the default date to today's date
-        function setDefaultDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const dd = String(today.getDate()).padStart(2, '0');
-            const formattedDate = `${yyyy}-${mm}-${dd}`;
-            document.getElementById('date').value = formattedDate;
-        }
+    <label for="year">Choose Year: </label>
+    <select name="year" id="year" disabled>
+        <option value="2025">2025</option>
+    </select><br><br>
 
-        function chooseByDate() {
-            // Enable the date input and disable month/year dropdowns
-            document.getElementById('date').disabled = false;
-            document.getElementById('month').disabled = true;
-            document.getElementById('year').disabled = true;
-        }
+    <input type="submit" value="Get Summery">
+</form>
+{% endblock %}
 
-        function chooseByMonth() {
-            // Enable the month and year dropdowns and disable the date input
-            document.getElementById('date').disabled = true;
-            document.getElementById('month').disabled = false;
-            document.getElementById('year').disabled = false;
-        }
+{% block scripts %}
+<script>
+    // Set the default date to today's date
+    function setDefaultDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const dd = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('date').value = formattedDate;
+    }
 
-        // Trigger the default selection behavior on page load
-        window.onload = function() {
-            setDefaultDate();
-            chooseByDate();
-        };
-    </script>
-</body>
-</html>
+    function chooseByDate() {
+        // Enable the date input and disable month/year dropdowns
+        document.getElementById('date').disabled = false;
+        document.getElementById('month').disabled = true;
+        document.getElementById('year').disabled = true;
+    }
+
+    function chooseByMonth() {
+        // Enable the month and year dropdowns and disable the date input
+        document.getElementById('date').disabled = true;
+        document.getElementById('month').disabled = false;
+        document.getElementById('year').disabled = false;
+    }
+
+    // Trigger the default selection behavior on page load
+    window.onload = function() {
+        setDefaultDate();
+        chooseByDate();
+    };
+</script>
+{% endblock %}
