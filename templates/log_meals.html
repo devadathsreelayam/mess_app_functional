@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Log Meals{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/log-meals.css') }}">
+{% endblock %}
+
+{% block content %}
+<header>
+    <div class="searchbar shadow">
+        <input type="search" name="search" id="search" placeholder="Search Inmate">
+        <span class="material-symbols-outlined">search</span>
+    </div>
+    <div class="row">
+        <div class="group">
+            <label for="date">Choose Date:&nbsp;&nbsp;</label>
+            <input type="date" name="date" id="date" class="shadow" value="{{ selected_date }}">
+        </div>
+        <span class="user">User Name</span>
+    </div>
+</header>
+
+<section class="inmate-view">
+    {% for inmate in inmates %}
+    <div class="inmate-item" data-inmate-id="{{ inmate['mess_no'] }}">
+        <img src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg" alt="person" class="person">
+        <div class="contents">
+            <div class="row">
+                <h3 class="name">{{ inmate['inmate_name'] }}</h3>
+                {% if inmate['is_ablc'] %}
+                <span class="ablc">ABLC</span>
+                {% endif %}
+            </div>
+            <p class="dept">{{ inmate['department'] }}</p>
+        </div>
+        <span class="mess-number">{{ inmate['mess_no'] }}</span>
+        <div class="tags">
+            <!-- Status tags -->
+            {% if inmate['breakfast'] %}<span class="tag breakfast active">B</span>{% else %}<span class="tag breakfast disabled">B</span>{% endif %}
+            {% if inmate['lunch'] %}<span class="tag lunch active">L</span>{% else %}<span class="tag lunch disabled">L</span>{% endif %}
+            {% if inmate['dinner'] %}<span class="tag dinner active">D</span>{% else %}<span class="tag dinner disabled">D</span>{% endif %}
+            {% if inmate['in_status'] == 'in' %}<span class="status in">In</span>{% elif inmate['in_status'] == 'out' %}<span class="status out">Out</span>{% else %}<span class="status out">N/A</span>{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<div class="popup" id="popup">
+    <span class="material-symbols-outlined close-btn" id="closePopup">close</span>
+    <h3 class="popup-title">Log Meals</h3>
+    <div class="details">
+        <p id="popupName">Name: <span class="data">Inmate Name</span></p>
+        <p id="popupDept">Dept: <span class="data">Inmate Name</span></p>
+        <p id="popupMessNumber">ID: <span class="data">100</span></p>
+    </div>
+    <div class="actions">
+        <div class="counter">
+            <p class="counter-label">Guest:</p>
+            <button id="guest-dec" class="counter-button">-</button>
+            <span id="guest-count">0</span>
+            <button id="guest-inc" class="counter-button">+</button>
+        </div>
+        <div class="counter">
+            <p class="counter-label">SG:</p>
+            <button id="sg-dec" class="counter-button">-</button>
+            <span id="sg-count">0</span>
+            <button id="sg-inc" class="counter-button">+</button>
+        </div>
+        <button id="mess-status" class="in">STATUS</button>
+        <div class="meals">
+            <button id="breakfast" class="meal">Breakfast</button>
+            <button id="lunch" class="meal">Lunch</button>
+            <button id="dinner" class="meal">Dinner</button>
+        </div>
+    </div>
+    <div class="updates">
+        <button id="cancel">Cancel</button>
+        <button id="save">Save</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
