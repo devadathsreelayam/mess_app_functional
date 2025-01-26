@@ -16,7 +16,7 @@
         <a class="navbar-brand" href="#">MH Mess</a>
         <span class="vertical-separator"></span>
         <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'index' %}link-active{% endif %}" href="{{ url_for('index') }}">Log Meals</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'get_by_date' %}link-active{% endif %}" href="{{ url_for('log_meals') }}">Log Meals</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'add_inmate' %}link-active{% endif %}" href="{{ url_for('add_inmate') }}">Add Inmate</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'manage_inmates' %}link-active{% endif %}" href="{{ url_for('manage_inmates') }}">Manage Inmates</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'summery' %}link-active{% endif %}" href="{{ url_for('summery') }}">View Summary</a></li>
