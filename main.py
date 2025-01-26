@@ -292,7 +292,8 @@ def get_inmate(inmate_id):
             'name': inmate['inmate_name'],
             'department': inmate['department'],
             'mess_number': inmate['mess_no'],
-            'is_ablc': inmate['is_ablc']
+            'is_ablc': inmate['is_ablc'],
+            'join_date': datetime.datetime.strftime(inmate['join_date'], '%Y-%m-%d')
         })
     else:
         return jsonify({'error': 'Inmate not found'}), 404

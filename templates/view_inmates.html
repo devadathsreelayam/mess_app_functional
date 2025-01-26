@@ -65,6 +65,11 @@
         </div>
 
         <div class="input-item">
+            <label for="join_date" class="form-label">Date of Joining Mess</label>
+            <input type="date" class="form-control" name="join_date" id="join_date" required>
+        </div>
+
+        <div class="input-item">
             <label for="ablc">ABLC</label>
             <div class="row">
                 <div class="form-check">
@@ -110,6 +115,7 @@
                     document.getElementById('mess_no').value = data.mess_number;
                     document.getElementById('inmate_name').value = data.name;
                     document.getElementById('department').value = data.department;
+                    document.getElementById('join_date').value = data.join_date;
 
                     // Handle ABLC status
                     if (data.is_ablc) {
