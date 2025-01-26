@@ -1,0 +1,187 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+h1 {
+    font-weight: 500;
+    margin: 20px 0;
+}
+
+.overflow-x {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+table, tr, td, th {
+    border: 1px solid #333;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+td:not(td:nth-child(2)) {
+    text-align: center;
+}
+
+td:nth-child(2) {
+    min-width: max-content;
+    width: 30ch;
+}
+
+td:nth-child(3) {
+    min-width: max-content;
+    width: 20ch;
+}
+
+td:nth-child(4), td:nth-child(5) {
+    min-width: max-content;
+    width: 10ch;
+}
+
+th {
+    background-color: #212529;
+    color: #fff;
+    font-weight: 500;
+    padding: 10px;
+}
+
+tr:nth-child(even) {
+    background-color: #E9ECEF;
+}
+
+tr:hover td {
+    background-color: #ccced0;
+}
+
+.actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 5px;
+    border: 0;
+    padding: 5px;
+}
+
+.actions a {
+    text-decoration: none;
+    color: #212529;
+    padding: 2px;
+    border-radius: 5px;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.actions a:hover {
+    background-color: #E9ECEF;
+}
+
+@media (max-width: 824px) {
+    .container {
+        width: 90%;
+    }
+
+    table, tr, td, th {
+        padding: 5px 2px;
+    }
+
+    th {
+        padding: 10px 2px;
+    }
+
+    td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+        width: max-content;
+    }
+}
+
+
+/* Edit inmate popup */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    width: 30rem;
+    max-width: 90%;
+    background-color: #FFF;
+    border-radius: 5px;
+    padding: 20px 20px;
+}
+
+.backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.popup h1 {
+    margin: 0 0 10px 0;
+}
+
+#closePopup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+label {
+    font-size: 0.9rem;
+}
+
+.form-control {
+    height: 2.5rem;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: 2px solid #bbb;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border: 2px solid transparent;
+    box-shadow: 0 3px 5px 0 rgba(41, 128, 194, 0.2), 0 6px 10px 0 rgba(41, 128, 194, 0.19);
+    outline: 3px solid rgb(41, 128, 194);
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.btn {
+    margin-top: 10px;
+    background-color: rgb(32, 100, 152);
+    border: 0;
+    height: 2.5rem;
+    color: #fff;
+    font-family: inherit;
+    border-radius: 5px;
+    cursor: pointer;
+}
