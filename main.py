@@ -80,15 +80,16 @@ def daily_summery():
             'join_count': join_count,
             'inmate_count': inmate_count
         }
-        print(daily_report)
+        daily_count = db.get_today_count()
 
-        return render_template('summery.html', daily_summery=daily_report)
+        return render_template('summery.html', daily_summery=daily_report, daily_count=daily_count)
     else:
         return jsonify({'error': 'Date is required for date-based requests'}), 400
 
 @app.route('/summery')
 def summery():
-    return render_template('summery.html', daily_summery=None)
+    daily_count = db.get_today_count()
+    return render_template('summery.html', daily_count=daily_count)
 
 @app.route('/monthly_summery', methods=['GET'])
 def monthly_summery():
@@ -114,8 +115,9 @@ def monthly_summery():
             'year': year,
             'result': result
         }
+        daily_count = db.get_today_count()
 
-        return render_template('summery.html', monthly_summery=monthly_report)
+        return render_template('summery.html', monthly_summery=monthly_report, daily_count=daily_count)
     else:
         return jsonify({'error': 'Month and year are required for month-based requests'}), 400
 
@@ -343,6 +345,10 @@ def delete_inmate(inmate_id):
         print(f"Error deleting inmate: {e}")
         return jsonify({"error": "An error occurred while deleting inmate."}), 500
 
+
+@app.route('/manage_expense')
+def manage_expense():
+    return render_template('manage_expense.html')
 
 
 

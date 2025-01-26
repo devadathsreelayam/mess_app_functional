@@ -54,6 +54,7 @@
     <div class="wrapper">
         <input type="button" class="btn" value="Daily Summery" onclick="showPopup('dailyPopup')">
         <input type="button" class="btn" value="Monthly Summery" onclick="showPopup('monthlyPopup')">
+        <input type="button" class="btn" value="Today's Count: {{ daily_count }}" style="cursor: auto;" disabled>
     </div>
 
     {% if daily_summery %}

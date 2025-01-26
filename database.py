@@ -76,3 +76,30 @@ def delete_inmate(mess_no):
     except Exception as e:
         print(f"Error during deletion: {e}")  # Log the error for debugging
         return None
+
+
+def get_today_count():
+    try:
+        connection = __get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """SELECT COUNT(*) FROM inmates i
+            JOIN mess_status ms
+            USING (mess_no)
+            WHERE ms.in_status = 'in' AND ms.update_date = CURDATE();"""
+        )
+
+        count = cursor.fetchone()[0]
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        if count:
+            return count
+        else:
+            return "Error"
+
+    except Exception as e:
+        print(f"Error while taking count: {e}")  # Log the error for debugging
+        return None
