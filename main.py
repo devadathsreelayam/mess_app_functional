@@ -95,7 +95,6 @@ def summery():
             cursor.execute(queries.monthly_summery_query, (first_date, last_date))
 
             result = cursor.fetchall()
-            print(result)
             cursor.close()
 
             return render_template('monthly_summery.html', month=month, year=year, result=result)
@@ -127,9 +126,10 @@ def get_by_date(date):
                    ml.breakfast, ml.lunch, ml.dinner
             FROM inmates i
             LEFT JOIN mess_status ms ON i.mess_no = ms.mess_no AND ms.update_date = %s
-            LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s;
+            LEFT JOIN mess_logs ml ON i.mess_no = ml.mess_no AND ml.log_date = %s
+            WHERE %s >= i.join_date;
             """,
-            (date, date, date, date)
+            (date, date, date, date, date)
         )
         inmates = cursor.fetchall()
         cursor.close()
@@ -241,17 +241,18 @@ def save_inmate():
         name = request.form.get('inmate_name')
         department = request.form.get('department')
         ablc = request.form.get('ablc')
+        join_date = request.form.get('join_date')
 
         ablc = 1 if ablc == 'ablc' else 0
 
-        print(mess_no, name, department, ablc)
+        print(mess_no, name, department, ablc, join_date)
 
         connection = get_db_connection()
         cursor = connection.cursor()
 
         cursor.execute(
-            """INSERT INTO inmates (mess_no, inmate_name, department, is_ablc)
-               VALUES (%s, %s, %s, %s);""", (mess_no, name, department, ablc)
+            """INSERT INTO inmates (mess_no, inmate_name, department, is_ablc, join_date)
+               VALUES (%s, %s, %s, %s, %s);""", (mess_no, name, department, ablc, join_date)
         )
 
         cursor.execute(
@@ -304,14 +305,29 @@ def update_inmate():
         department = request.form.get('department')
         ablc = request.form.get('ablc')
         ablc = 1 if ablc == 'ablc' else 0
-        print(mess_no, name, department, ablc)
 
         if db.update_inmate(mess_no, name, department, ablc):
-            return redirect(url_for('view_inmates'))
+            return redirect(url_for('manage_inmates'))
 
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': 'Failed to save inmate record.'}), 500
+
+
+@app.route('/delete_inmate/<int:inmate_id>', methods=['GET'])
+def delete_inmate(inmate_id):
+    try:
+        success = db.delete_inmate(inmate_id)  # Ensure this method is correctly implemented
+        if success:
+            return redirect(url_for('manage_inmates'))
+        else:
+            return jsonify({"error": "Inmate not found"}), 404
+    except Exception as e:
+        # Log the exception for debugging
+        print(f"Error deleting inmate: {e}")
+        return jsonify({"error": "An error occurred while deleting inmate."}), 500
+
+
 
 
 if __name__ == '__main__':
