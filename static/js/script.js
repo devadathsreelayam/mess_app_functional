@@ -113,6 +113,10 @@ function showPopup(inmateId, date) {
                 const guestCountLabel = document.getElementById('guest-count');
                 const sgCountLabel = document.getElementById('sg-count');
 
+                // Setting guest and SG counts as zero if null
+                inmate.guestCount = inmate.guestCount ?? 0;
+                inmate.sgCount = inmate.sgCount ?? 0;
+
                 guestCountLabel.innerText = inmate.guestCount;
                 sgCountLabel.innerText = inmate.sgCount;
 
