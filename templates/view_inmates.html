@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}View Inmates{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Inmate Details</h1>
+    <div class="overflow-x">
+        <table>
+            <tr>
+                <th>Mess No.</th>
+                <th>Inmate Name</th>
+                <th>Department</th>
+                <th>ABLC</th>
+                <th>Action</th>
+            </tr>
+            {% for inmate in inmates %}
+            <tr>
+                <td>{{ inmate['mess_no'] }}</td>
+                <td>{{ inmate['inmate_name'] }}</td>
+                <td>{{ inmate['department'] }}</td>
+                {% if inmate['is_ablc'] %}
+                <td>ABLC</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+    
+                <td class="actions">
+                    <a href="" action="edit" inmate-id="{{ inmate['mess_no'] }}" onclick="editInmate(this); return false;">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                    <a href="/delete_inmate/{{ inmate['mess_no'] }}" inmate-id="{{ inmate['mess_no'] }}"  inmate-name="{{ inmate['inmate_name'] }}" onclick="return confirmDelete(event, this)">
+                        <span class="material-symbols-outlined">delete_forever</span>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="popup" id="popup">
+    <h1>Edit Inmate</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup(this)">close</span>
+    <form action="/update_inmate" method="POST">
+        <div class="input-item">
+            <label for="mess_no" class="form-label">Mess Number</label>
+            <input type="text" class="form-control" name="mess_no" id="mess_no" placeholder="Enter Mess Number" readonly>
+        </div>
+
+        <div class="input-item">
+            <label for="inmate_name" class="form-label">Name of Inmate</label>
+            <input type="text" class="form-control" name="inmate_name" id="inmate_name" placeholder="Enter Name" required>
+        </div>
+
+        <div class="input-item">
+            <label for="department" class="form-label">Department of Inmate</label>
+            <input type="text" class="form-control" name="department" id="department" placeholder="Enter Department" required>
+        </div>
+
+        <div class="input-item">
+            <label for="ablc">ABLC</label>
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="ablc" value="ablc">
+                    <label class="form-check-label" for="ablc">ABLC</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="regular" value="regular" checked>
+                    <label class="form-check-label" for="regular">Regular</label>
+                </div>
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-long-m" value="Submit">
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const popup = document.getElementById('popup');
+    const backdrop = document.getElementById('backdrop');
+    let inmate = null;
+
+    function editInmate(element) {
+        const inmateId = element.getAttribute('inmate-id');
+        console.log("Inmate ID:", inmateId);
+
+        fetch(`/get_inmate/${inmateId}`)
+            .then(response => {
+                console.log("Response status:", response.status); // Log status
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetch data:", data);
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    // Populate form fields
+                    document.getElementById('mess_no').value = data.mess_number;
+                    document.getElementById('inmate_name').value = data.name;
+                    document.getElementById('department').value = data.department;
+
+                    // Handle ABLC status
+                    if (data.is_ablc) {
+                        document.getElementById('ablc').checked = true;
+                    } else {
+                        document.getElementById('regular').checked = true;
+                    }
+
+                    // Show the popup
+                    document.getElementById('popup').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching inmate details:', error);
+                alert('Failed to fetch inmate details.');
+            });
+    }
+
+    function closePopup() {
+        backdrop.style.display = 'none';
+        popup.style.display = 'none';
+    }
+
+    function confirmDelete(event, element) {
+        const inmateId = element.getAttribute('inmate-id');
+        const inmateName = element.getAttribute('inmate-name');
+        const userConfirmed = confirm(`Are you sure you want to delete inmate ${inmateId}: ${inmateName}?`);
+
+        if (!userConfirmed) {
+            event.preventDefault();
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}
