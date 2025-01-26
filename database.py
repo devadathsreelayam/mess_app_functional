@@ -62,8 +62,10 @@ def delete_inmate(mess_no):
         connection = __get_db_connection()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
 
-        cursor.execute('DELETE FROM mess_status WHERE mess_no = %s', (mess_no,))
-        cursor.execute('DELETE FROM inmates WHERE mess_no = %s', (mess_no,))
+        cursor.execute('DELETE FROM mess_status WHERE mess_no = %s', (mess_no,))  # Delete records from mess status
+        cursor.execute('DELETE FROM mess_logs WHERE mess_no = %s', (mess_no,))  # Delete records from meal logs
+        cursor.execute('DELETE FROM guest_logs WHERE mess_no = %s', (mess_no,))  # Delete records from guest logs
+        cursor.execute('DELETE FROM inmates WHERE mess_no = %s', (mess_no,))  # Finally delete inmate from inmates table
         connection.commit()
 
         cursor.close()

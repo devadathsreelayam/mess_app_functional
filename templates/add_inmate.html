@@ -26,6 +26,11 @@
         </div>
 
         <div class="input-item">
+            <label for="join_date" class="form-label">Date of Joining Mess</label>
+            <input type="date" class="form-control" name="join_date" id="join_date" required>
+        </div>
+
+        <div class="input-item">
             <label for="ablc">ABLC</label>
             <div class="row">
                 <div class="form-check">
@@ -42,4 +47,11 @@
         <input type="submit" class="btn btn-long-m" value="Submit">
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('join_date').value = today;
+</script>
 {% endblock %}
