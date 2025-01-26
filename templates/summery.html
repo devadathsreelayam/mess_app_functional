@@ -2,73 +2,139 @@
 
 {% block title %}Summary{% endblock %}
 
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/summery.css') }}">
+{% endblock %}
+
 {% block content %}
-<form action="" method="get">
-    <h2>Choose Options</h2>
-    <input type="radio" name="choose-type" id="choose-date" value="date" onclick="chooseByDate()" checked>
-    <label for="choose-date">Summary by Date</label>
+<div class="container">
 
-    <input type="radio" name="choose-type" id="choose-month" value="month" onclick="chooseByMonth()">
-    <label for="choose-month">Summary by Month</label><br><br>
+    <div class="popup" id="dailyPopup">
+        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('dailyPopup')">close</span>
+        <form action="/daily_summery" method="get">
+            <h2>Summery by Date</h2>
+            <label for="date">Choose Date: </label>
+            <input type="date" name="date" id="date" class="form-control">
 
-    <label for="date">Choose Date: </label>
-    <input type="date" name="date" id="date"><br><br>
+            <input class="btn" type="submit" value="Get Summery">
+        </form>
+    </div>
 
-    <label for="month">Choose Month: </label>
-    <select name="month" id="month" disabled>
-        <option value="January">January</option>
-        <option value="February">February</option>
-        <option value="March">March</option>
-        <option value="April">April</option>
-        <option value="May">May</option>
-        <option value="June">June</option>
-        <option value="July">July</option>
-        <option value="August">August</option>
-        <option value="September">September</option>
-        <option value="October">October</option>
-        <option value="November">November</option>
-        <option value="December">December</option>
-    </select>
+    <div class="popup" id="monthlyPopup">
+        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('monthlyPopup')">close</span>
+        <form action="/monthly_summery" method="get">
+            <h2>Summery by Month</h2>
+            <label for="month">Choose Month: </label>
+            <select name="month" id="month" class="form-control">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        
+            <label for="year" style="margin-top: 10px;">Choose Year: </label>
+            <select name="year" id="year" class="form-control">
+                <option value="2025">2025</option>
+            </select>
 
-    <label for="year">Choose Year: </label>
-    <select name="year" id="year" disabled>
-        <option value="2025">2025</option>
-    </select><br><br>
+            <input class="btn" type="submit" value="Get Summery" style="margin-top: 15px;">
+        </form>
+    </div>
 
-    <input type="submit" value="Get Summery">
-</form>
+    <h1>View Summery</h1>
+
+    <div class="wrapper">
+        <input type="button" class="btn" value="Daily Summery" onclick="showPopup('dailyPopup')">
+        <input type="button" class="btn" value="Monthly Summery" onclick="showPopup('monthlyPopup')">
+    </div>
+
+    {% if daily_summery %}
+    <section class="daily-summery" id="daily-summery">
+        <h1>Daily Summery of {{ daily_summery['summery_date'] }}</h1>
+        <table id="daily">
+            <tr>
+                <th>Category</th>
+                <th>Count</th>
+            </tr>
+            <tr>
+                <td>Breakfast</td>
+                <td>{{ daily_summery['breakfast_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Lunch</td>
+                <td>{{ daily_summery['lunch_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Dinner</td>
+                <td>{{ daily_summery['dinner_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Mess In</td>
+                <td>{{ daily_summery['join_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Inmates</td>
+                <td>{{ daily_summery['inmate_count'] }}</td>
+            </tr>
+        </table>
+    </section>
+    {% endif %}
+
+    {% if monthly_summery %}
+    <section class="monthly-summery" id="monthly-summery">
+        <h1>Monthly Summery of {{ monthly_summery['month'] }}, {{ monthly_summery['year'] }}</h1>
+        <div class="overflow-x">
+            <table id="monthly">
+                <tr>
+                    <th>Mess No.</th>
+                    <th>Inmate Name</th>
+                    <th>Department</th>
+                    <th>ABLC</th>
+                    <th>Join Count</th>
+                    <th>Guest Count</th>
+                    <th>SG Count</th>
+                </tr>
+
+                {% for row in monthly_summery['result'] %}
+                <tr>
+                    <td>{{ row['mess_no'] }}</td>
+                    <td>{{ row['inmate_name'] }}</td>
+                    <td>{{ row['department'] }}</td>
+                    <td>{{ "ABLC" if row['is_ablc'] else "" }}</td>
+                    <td>{{ row['join_count'] }}</td>
+                    <td>{{ row['guest_count'] }}</td>
+                    <td>{{ row['sg_count'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </section>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Set the default date to today's date
-    function setDefaultDate() {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        const dd = String(today.getDate()).padStart(2, '0');
-        const formattedDate = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('date').value = formattedDate;
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    function showPopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'block';
     }
 
-    function chooseByDate() {
-        // Enable the date input and disable month/year dropdowns
-        document.getElementById('date').disabled = false;
-        document.getElementById('month').disabled = true;
-        document.getElementById('year').disabled = true;
+    function closePopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'none';
     }
-
-    function chooseByMonth() {
-        // Enable the month and year dropdowns and disable the date input
-        document.getElementById('date').disabled = true;
-        document.getElementById('month').disabled = false;
-        document.getElementById('year').disabled = false;
-    }
-
-    // Trigger the default selection behavior on page load
-    window.onload = function() {
-        setDefaultDate();
-        chooseByDate();
-    };
 </script>
 {% endblock %}
+

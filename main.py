@@ -47,62 +47,77 @@ def log_meals():
     today = datetime.date.today().strftime("%Y-%m-%d")
     return redirect(url_for('get_by_date', date=today))
 
-@app.route('/summery', methods=['GET'])
-def summery():
+@app.route('/daily_summery', methods=['GET'])
+def daily_summery():
     if not request.args:
-        return render_template('summery.html')
+        return redirect(url_for('summery'))
 
-    # Extract the 'choose-type' parameter from the query string
-    choose_type = request.args.get('choose-type')
+    date = request.args.get('date')
+    if date:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('SELECT COUNT(*) FROM inmates;')
+        inmate_count = cursor.fetchone()[0]
 
-    # Handle based on 'choose-type'
-    if choose_type == 'date':
-        # Get the 'date' parameter
-        date = request.args.get('date')
-        if date:
-            connection = get_db_connection()
-            cursor = connection.cursor()
-            cursor.execute('SELECT COUNT(*) FROM inmates;')
-            inmate_count = cursor.fetchone()[0]
+        cursor.execute(
+            """SELECT COUNT(breakfast), COUNT(lunch), COUNT(dinner) FROM mess_logs
+            WHERE log_date = %s;""", (date,)
+        )
+        result = cursor.fetchone()
+        breakfast = result[0]
+        lunch = result[1]
+        dinner = result[2]
 
-            cursor.execute(
-                """SELECT COUNT(breakfast), COUNT(lunch), COUNT(dinner) FROM mess_logs
-                WHERE log_date = %s;""", (date,)
-            )
-            result = cursor.fetchone()
-            breakfast = result[0]
-            lunch = result[1]
-            dinner = result[2]
+        cursor.execute("SELECT COUNT(*) FROM mess_status WHERE in_status = 'in' AND update_date = %s;", (date,))
+        join_count = cursor.fetchone()[0]
+        cursor.close()
 
-            cursor.execute("SELECT COUNT(*) FROM mess_status WHERE in_status = 'in' AND update_date = %s;", (date,))
-            join_count = cursor.fetchone()[0]
+        daily_report = {
+            'summery_date': date,
+            'breakfast_count': breakfast,
+            'lunch_count': lunch,
+            'dinner_count': dinner,
+            'join_count': join_count,
+            'inmate_count': inmate_count
+        }
+        print(daily_report)
 
-            cursor.close()
+        return render_template('summery.html', daily_summery=daily_report)
+    else:
+        return jsonify({'error': 'Date is required for date-based requests'}), 400
 
-            return render_template('daily_summery.html', summery_date=date, brekfast_count=breakfast, lunch_count=lunch, dinner_count=dinner, join_count=join_count, inmate_count=inmate_count)
-        else:
-            return jsonify({'error': 'Date is required for date-based requests'}), 400
+@app.route('/summery')
+def summery():
+    return render_template('summery.html', daily_summery=None)
 
-    elif choose_type == 'month':
-        # Get the 'month' and 'year' parameters
-        month = request.args.get('month')
-        year = request.args.get('year')
-        if month and year:
-            first_date, last_date = get_first_and_last_dates(month, int(year))
-            connection = get_db_connection()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
+@app.route('/monthly_summery', methods=['GET'])
+def monthly_summery():
+    if not request.args:
+        return redirect(url_for('summery'))
 
-            cursor.execute(queries.monthly_summery_query, (first_date, last_date))
+    month = request.args.get('month')
+    year = request.args.get('year')
 
-            result = cursor.fetchall()
-            cursor.close()
+    if month and year:
+        first_date, last_date = get_first_and_last_dates(month, int(year))
+        connection = get_db_connection()
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
 
-            return render_template('monthly_summery.html', month=month, year=year, result=result)
-        else:
-            return jsonify({'error': 'Month and year are required for month-based requests'}), 400
+        cursor.execute(queries.monthly_summery_query, (first_date, last_date))
 
-    # If 'choose-type' is invalid or not provided
-    return jsonify({'error': 'Invalid or missing choose-type parameter'}), 400
+        result = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        monthly_report = {
+            'month': month,
+            'year': year,
+            'result': result
+        }
+
+        return render_template('summery.html', monthly_summery=monthly_report)
+    else:
+        return jsonify({'error': 'Month and year are required for month-based requests'}), 400
 
 # Fixed route definition: use <string:date> instead of <str:date>
 @app.route('/get_by_date/<string:date>', methods=['GET'])
