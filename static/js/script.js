@@ -81,8 +81,15 @@ function showPopup(inmateId, date) {
                     lunch: data.lunch,
                     dinner: data.dinner,
                     guestCount: data.guest_count,
-                    sgCount: data.sg_count
+                    sgCount: data.sg_count,
+                    isBillDue: data.is_bill_due
                 };
+
+                console.log(inmate.isBillDue);
+
+                if (inmate.isBillDue) {
+                    alert(`${inmate.name} has unpaid bills.\nPlease be aware!!!`);
+                }
 
                 document.querySelector('#popupName span').innerText = inmate.name;
                 document.querySelector('#popupDept span').innerText = inmate.department;

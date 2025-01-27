@@ -179,6 +179,11 @@ header {
     background-color: rgb(231, 0, 0);
 }
 
+.due {
+    background-color: rgb(164, 9, 53);
+    color: #fff;
+}
+
 .person {
     width: 70px;
     height: 70px;

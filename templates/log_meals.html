@@ -38,6 +38,7 @@
         <span class="mess-number">{{ inmate['mess_no'] }}</span>
         <div class="tags">
             <!-- Status tags -->
+            {% if inmate['is_bill_due'] %}<span class="tag due">DUE</span>{% endif %}
             {% if inmate['breakfast'] %}<span class="tag breakfast active">B</span>{% else %}<span class="tag breakfast disabled">B</span>{% endif %}
             {% if inmate['lunch'] %}<span class="tag lunch active">L</span>{% else %}<span class="tag lunch disabled">L</span>{% endif %}
             {% if inmate['dinner'] %}<span class="tag dinner active">D</span>{% else %}<span class="tag dinner disabled">D</span>{% endif %}

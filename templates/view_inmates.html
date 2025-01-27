@@ -16,6 +16,7 @@
                 <th>Inmate Name</th>
                 <th>Department</th>
                 <th>ABLC</th>
+                <th>Bill Due</th>
                 <th>Action</th>
             </tr>
             {% for inmate in inmates %}
@@ -28,8 +29,17 @@
                 {% else %}
                 <td></td>
                 {% endif %}
+
+                {% if inmate['is_bill_due'] %}
+                <td>Due</td>
+                {% else %}
+                <td></td>
+                {% endif %}
     
                 <td class="actions">
+                    <a href="/mark_due/{{ inmate['mess_no'] }}">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </a>
                     <a href="" action="edit" inmate-id="{{ inmate['mess_no'] }}" onclick="editInmate(this); return false;">
                         <span class="material-symbols-outlined">edit</span>
                     </a>

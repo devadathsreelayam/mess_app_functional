@@ -43,6 +43,24 @@ def get_inmate(mess_no):
         return None
 
 
+def mark_due(mess_no):
+    try:
+        connection = __get_db_connection()
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute('SELECT is_bill_due FROM inmates WHERE mess_no = %s', (mess_no, ))
+        is_bill_due = cursor.fetchone()['is_bill_due']
+        cursor.execute('UPDATE inmates SET is_bill_due = %s WHERE mess_no = %s', (not is_bill_due, mess_no))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return True
+
+    except Exception as e:
+        print(f'Error occurred while marking fee due: {e}')
+        return None
+
+
 def update_inmate(mess_no, inmate_name, department, is_ablc):
     try:
         connection = __get_db_connection()

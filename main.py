@@ -208,6 +208,7 @@ def get_inmate_details(inmate_id):
             'dinner': inmate['dinner'] if inmate['lunch'] is not None else 0,
             'guest_count': inmate['guest_count'],
             'sg_count': inmate['sg_count'],
+            'is_bill_due': inmate['is_bill_due'],
         })
     else:
         return jsonify({'error': 'Inmate not found'}), 404
@@ -312,6 +313,12 @@ def manage_inmates():
     
     if inmates:
         return render_template('view_inmates.html', inmates=inmates)
+
+
+@app.route('/mark_due/<int:mess_no>', methods=['GET'])
+def mark_due(mess_no):
+    db.mark_due(mess_no)
+    return redirect(url_for('manage_inmates'))
 
 
 @app.route('/get_inmate/<int:inmate_id>', methods=['GET'])
