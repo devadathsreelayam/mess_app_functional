@@ -432,7 +432,51 @@ def update_expense(expense_id):
 
 @app.route('/manage_users')
 def manage_users():
-    return render_template('users.html')
+    users = db.get_users()
+    print(users)
+    return render_template('users.html', users=users)
+
+
+@app.route('/get_user/<string:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = db.get_users(user_id)
+    return user
+
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    try:
+        userid = request.form.get('userid')
+        password = request.form.get('password')
+        user_name = request.form.get('user_name')
+        department = request.form.get('department')
+        mobile = request.form.get('mobile')
+        role = request.form.get('role')
+
+        db.add_user(userid, user_name, department, mobile, role)
+        return redirect(url_for('manage_users'))
+
+    except Exception as e:
+        print(f'Error occurred while adding new user: {e}')
+        return jsonify({'error': 'Failed to save new user.'}), 500
+
+
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    try:
+        userid = request.form.get('userid')
+        password = request.form.get('password')
+        user_name = request.form.get('user_name')
+        department = request.form.get('department')
+        mobile = request.form.get('mobile')
+        role = request.form.get('role')
+
+        db.add_user(userid, user_name, department, mobile, role, action='update')
+        return redirect(url_for('manage_users'))
+
+    except Exception as e:
+        print(f'Error occurred while updating user: {e}')
+        return jsonify({'error': 'Failed to update user.'}), 500
 
 
 if __name__ == '__main__':

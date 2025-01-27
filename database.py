@@ -297,6 +297,65 @@ def get_total_sg_and_guest(first_date, last_date):
         return None
 
 
+def get_users(user_id=None):
+    try:
+        connection = __get_db_connection()
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+
+        if user_id:
+            cursor.execute('SELECT * FROM users WHERE userid = %s', (user_id, ))
+            user = cursor.fetchone()
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+            return user
+        else:
+            cursor.execute('SELECT * FROM users')
+            users = cursor.fetchall()
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+            return users
+
+
+    except Exception as e:
+        print(f'Error occurred while fetching expense: {e}')
+        return None
+
+
+def add_user(userid, user_name, department, mobile, role, action='add'):
+    try:
+        connection = __get_db_connection()
+        cursor = connection.cursor()
+
+        if not action == 'update':
+            cursor.execute(
+                """INSERT INTO users (userid, user_name, department, mobile, role)
+                   VALUES (%s, %s, %s, %s, %s);""",
+                (userid, user_name, department, mobile, role)
+            )
+        else:
+            cursor.execute(
+                """UPDATE users
+                SET user_name = %s, department = %s, mobile = %s, role = %s
+                WHERE userid = %s;""",
+                (user_name, department, mobile, role, userid)
+            )
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return True
+
+    except Exception as e:
+        print(f"Error while adding user: {e}")  # Log the error for debugging
+        return None
+
 
 if __name__ == '__main__':
-    print(get_total_sg_and_guest('2025-01-01', '2025-01-31'))
+    print(get_users('deva'))
