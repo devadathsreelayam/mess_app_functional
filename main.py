@@ -348,7 +348,68 @@ def delete_inmate(inmate_id):
 
 @app.route('/manage_expense')
 def manage_expense():
-    return render_template('manage_expense.html')
+    expenses = db.get_all_expenses()
+    return render_template('manage_expense.html', expenses=expenses)
+
+
+@app.route('/add_expense', methods=['POST'])
+def add_expense():
+    expense_name = request.form.get('expense_name')
+    bill_date = request.form.get('bill_date')
+    shop_name = request.form.get('shop_name')
+    expense_type = request.form.get('expense_type')
+    expense_category = request.form.get('expense_category')
+    bill_amount = request.form.get('bill_amount')
+
+    print((expense_name, bill_date, shop_name, expense_type.lower(), expense_category, bill_amount))
+
+    if db.add_expense(expense_name, bill_date, shop_name, expense_type.lower(), expense_category, bill_amount):
+        return redirect(url_for('manage_expense'))
+    else:
+        return jsonify({"error": "An error occurred while adding expense."}), 500
+
+
+@app.route('/delete_expense/<int:expense_id>', methods=['GET'])
+def delete_expense(expense_id):
+    if db.delete_expense(expense_id):
+        return redirect(url_for('manage_expense'))
+    else:
+        return jsonify({"error": "An error occurred while adding expense."}), 500
+
+
+@app.route('/get_expense/<int:expense_id>')
+def get_expense(expense_id):
+    expense = db.get_expense(expense_id)
+    if expense:
+        return jsonify({
+            'expense_id': expense['expense_id'],
+            'expense_name': expense['expense_name'],
+            'bill_date': datetime.datetime.strftime(expense['bill_date'], '%Y-%m-%d'),
+            'shop': expense['shop'],
+            'type': expense['type'],
+            'category': expense['category'],
+            'bill_amount': float(expense['bill_amount']),
+        })
+    else:
+        return jsonify({'error': 'Expense not found'}), 404
+
+
+
+@app.route('/update_expense/<int:expense_id>', methods=['POST'])
+def update_expense(expense_id):
+    expense_name = request.form.get('expense_name')
+    bill_date = request.form.get('bill_date')
+    shop_name = request.form.get('shop_name')
+    expense_type = request.form.get('expense_type')
+    expense_category = request.form.get('expense_category')
+    bill_amount = request.form.get('bill_amount')
+
+    print(expense_id, expense_name, bill_date, shop_name, expense_type.lower(), expense_category, bill_amount)
+
+    if db.update_expense(expense_id, expense_name, bill_date, shop_name, expense_type.lower(), expense_category, bill_amount):
+        return redirect(url_for('manage_expense'))
+    else:
+        return jsonify({"error": "An error occurred while adding expense."}), 500
 
 
 

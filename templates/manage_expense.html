@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Expense{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/summery.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-bottom: 20px;">
+    <div class="popup" id="addExpensePopup" style="width: 25rem; max-width: 90%;">
+        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('addExpensePopup')">close</span>
+        <form id="expenseForm" action="/add_expense" method="POST">
+            <h2>Add Expense</h2>
+            <div class="input-item">
+                <label for="expense_name" class="form-label">Expense Name</label>
+                <input type="text" class="form-control" name="expense_name" id="expense_name" placeholder="Enter Expense Name" required>
+            </div>
+    
+            <div class="input-item">
+                <label for="bill_date" class="form-label">Bill Date</label>
+                <input type="date" class="form-control" name="bill_date" id="bill_date" required>
+            </div>
+    
+            <div class="input-item">
+                <label for="shop_name" class="form-label">Shop/Person Name</label>
+                <input type="text" class="form-control" name="shop_name" id="shop_name" placeholder="Enter Shop Name" required>
+            </div>
+    
+            <div class="input-item">
+                <label for="expense_type" class="form-label">Expense Type</label>
+                <select name="expense_type" id="expense_type" class="form-control">
+                    <option disabled selected>Select Expense Type</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="fixed">Fixed</option>
+                </select>
+            </div>
+    
+            <div class="input-item">
+                <label for="expense_category" class="form-label">Expense Category</label>
+                <input list="expense_categories" id="expense_category" name="expense_category" class="form-control" placeholder="Select Expense Category">
+                <datalist id="expense_categories">
+                    <option value="Vegetable">
+                    <option value="Meat">
+                    <option value="Milk">
+                    <option value="Stationery">
+                </datalist>
+                <datalist id="fixed_categories">
+                    <option value="Salary">
+                    <option value="Audit">
+                </datalist>
+            </div>
+    
+            <div class="input-item">
+                <label for="bill_amount" class="form-label">Bill Amount</label>
+                <input type="text" class="form-control" name="bill_amount" id="bill_amount" placeholder="Enter Bill Amount" required>
+            </div>
+    
+            <input type="submit" class="btn btn-long-m" value="Save Expense">
+        </form>
+    </div>
+
+    <h1>Manage Expenses</h1>
+    <div class="wrapper" style="margin-bottom: 10px;">
+        <button type="button" class="btn" onclick="showPopup('addExpensePopup')">Add Expense</button>
+    </div>
+
+    {% if expenses %}
+    <section>
+        <div class="overflow-x">
+            <table style="width: 100%">
+                <tr>
+                    <th>Sl. No.</th>
+                    <th>Expense Name</th>
+                    <th>Bill Date</th>
+                    <th>Shop</th>
+                    <th>Added By</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense['expense_id'] }}</td>
+                    <td>{{ expense['expense_name'] }}</td>
+                    <td>{{ expense['bill_date'] }}</td>
+                    <td>{{ expense['shop'] }}</td>
+                    <td>{{ expense['user_name'] }}</td>
+                    <td>{{ expense['type'].capitalize() }}</td>
+                    <td>{{ expense['category'] }}</td>
+                    <td>{{ expense['bill_amount'] }}</td>
+
+                    <td class="actions">
+                        <a href="" action="edit" expense-id="{{ expense['expense_id'] }}" onclick="editExpense(this); return false;">
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
+                        <a href="/delete_expense/{{ expense['expense_id'] }}" onclick="return confirmDelete(event)">
+                            <span class="material-symbols-outlined">delete_forever</span>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('bill_date').value = today;
+
+    function showPopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'block';
+    }
+
+    function closePopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'none';
+    }
+
+    function confirmDelete(event) {
+        const userConfirmed = confirm(`Are you sure you want to delete the expense?`);
+
+        if (!userConfirmed) {
+            event.preventDefault();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Edit expense
+    function editExpense(element) {
+        const expenseId = element.getAttribute('expense-id');
+        console.log("Expense ID:", expenseId);
+
+        fetch(`/get_expense/${expenseId}`)
+            .then(response => {
+                console.log("Response status:", response.status); // Log status
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetch data:", data);
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    // Populate form fields
+                    document.getElementById('expense_name').value = data.expense_name;
+                    document.getElementById('bill_date').value = data.bill_date;
+                    document.getElementById('shop_name').value = data.shop;
+                    document.getElementById('expense_type').value = data.type;
+                    document.getElementById('expense_category').value = data.category;
+                    document.getElementById('bill_amount').value = data.bill_amount;
+
+                    // Update the form's action to point to the update URL
+                    document.getElementById('expenseForm').action = `/update_expense/${expenseId}`;
+
+                    // Show the popup
+                    document.getElementById('addExpensePopup').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching inmate details:', error);
+                alert('Failed to fetch inmate details.');
+            });
+    }
+</script>
+{% endblock %}
