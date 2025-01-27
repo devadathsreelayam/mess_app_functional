@@ -274,6 +274,29 @@ def get_total_expenses_of_month(month, year):
         return None
 
 
+def get_total_sg_and_guest(first_date, last_date):
+    try:
+        connection = __get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """SELECT SUM(guest_count) AS guest, SUM(sg_count) as SG FROM guest_logs
+                WHERE log_date BETWEEN %s AND %s;""", (first_date, last_date)
+        )
+
+        guest_count, sg_count = cursor.fetchone()
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return int(guest_count), int(sg_count)
+
+    except Exception as e:
+        print(f"Error during expense calculation: {e}")  # Log the error for debugging
+        return None
+
+
 
 if __name__ == '__main__':
-    print(get_expense(3))
+    print(get_total_sg_and_guest('2025-01-01', '2025-01-31'))

@@ -92,6 +92,48 @@
     {% if monthly_summery %}
     <section class="monthly-summery" id="monthly-summery">
         <h1>Monthly Summery of {{ monthly_summery['month'] }}, {{ monthly_summery['year'] }}</h1>
+
+        {% if monthly_expenses %}
+        <table style="margin: 20px 0;">
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+            </tr>
+            <tr>
+                <td>Total Purchase</td>
+                <td>{{ monthly_expenses['purchase'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Fixed</td>
+                <td>{{ monthly_expenses['fixed'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Guest Count</td>
+                <td>{{ monthly_expenses['guest_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total SG Count</td>
+                <td>{{ monthly_expenses['sg_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Guest Charges</td>
+                <td>{{ monthly_expenses['total_guest_pay'] }}</td>
+            </tr>
+            <tr>
+                <td>Number of Inmates</td>
+                <td>{{ monthly_expenses['inmate_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Fixed Charges per Head</td>
+                <td>{{ monthly_expenses['fixed_charge_per_head'] }}</td>
+            </tr>
+            <tr>
+                <td>Daily Expense per Head</td>
+                <td>{{ monthly_expenses['daily_expense_per_head'] }}</td>
+            </tr>
+        </table>
+        {% endif %}
+
         <div class="overflow-x">
             <table id="monthly">
                 <tr>
@@ -102,6 +144,9 @@
                     <th>Join Count</th>
                     <th>Guest Count</th>
                     <th>SG Count</th>
+                    <th>Join Amount</th>
+                    <th>Guest Charges</th>
+                    <th>Net Bill Amount</th>
                 </tr>
 
                 {% for row in monthly_summery['result'] %}
@@ -113,6 +158,7 @@
                     <td>{{ row['join_count'] }}</td>
                     <td>{{ row['guest_count'] }}</td>
                     <td>{{ row['sg_count'] }}</td>
+                    <td>{{ row['join_count'] * monthly_expenses['daily_expense_per_head'] }}</td>
                 </tr>
                 {% endfor %}
             </table>

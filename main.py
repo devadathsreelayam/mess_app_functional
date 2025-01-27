@@ -105,19 +105,37 @@ def monthly_summery():
         cursor = connection.cursor(pymysql.cursors.DictCursor)
 
         cursor.execute(queries.monthly_summery_query, (first_date, last_date))
-
         result = cursor.fetchall()
+
+        cursor.execute('SELECT COUNT(*) AS count FROM inmates;')
+        inmate_count = int(cursor.fetchone()['count'])
+
+        expenses = db.get_total_expenses_of_month(month, int(year))
+        guest_count, sg_count = db.get_total_sg_and_guest(first_date, last_date)
+
         cursor.close()
         connection.close()
+
+        daily_count = db.get_today_count()
+
+        monthly_expenses = {
+            'fixed': expenses[0],
+            'purchase': expenses[1],
+            'guest_count': guest_count,
+            'sg_count': sg_count,
+            'total_guest_pay': 30 * (guest_count + sg_count),
+            'inmate_count': inmate_count,
+            'fixed_charge_per_head': (30 * (guest_count + sg_count)) / inmate_count,
+            'daily_expense_per_head': (expenses[1] - (30 * (guest_count + sg_count))) / inmate_count,
+        }
 
         monthly_report = {
             'month': month,
             'year': year,
             'result': result
         }
-        daily_count = db.get_today_count()
 
-        return render_template('summery.html', monthly_summery=monthly_report, daily_count=daily_count)
+        return render_template('summery.html', monthly_summery=monthly_report, monthly_expenses=monthly_expenses, daily_count=daily_count)
     else:
         return jsonify({'error': 'Month and year are required for month-based requests'}), 400
 
