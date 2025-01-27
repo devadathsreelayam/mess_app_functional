@@ -430,6 +430,10 @@ def update_expense(expense_id):
         return jsonify({"error": "An error occurred while adding expense."}), 500
 
 
+@app.route('/manage_users')
+def manage_users():
+    return render_template('users.html')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
