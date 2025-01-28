@@ -130,6 +130,7 @@
                     document.getElementById('user_name').value = data.user_name;
                     document.getElementById('department').value = data.department;
                     document.getElementById('mobile').value = data.mobile;
+                    document.getElementById('active_status').value = data.active_status;
                     document.getElementById('role').value = data.role;
 
                     document.getElementById('userid').readOnly = true;
@@ -137,6 +138,7 @@
                     document.getElementById('password').placeholder = 'Enter New Password';
                     document.querySelector('label[for="password"]').innerText = 'New Password';
 
+                    document.getElementById('active_status').closest('div').style.display = 'flex';
 
                     // Update the form's action to point to the update URL
                     document.getElementById('userForm').action = `/update_user/${userId}`;
