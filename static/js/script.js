@@ -11,20 +11,20 @@ function setButtonState(isIn, isAblc) {
     const lunchButton = document.getElementById('lunch');
     const dinnerButton = document.getElementById('dinner');
 
+    sgDecButton.disabled = isIn;
+    sgIncButton.disabled = isIn;
+    guestDecButton.disabled = !isIn;
+    guestIncButton.disabled = !isIn;
+
+    breakfastButton.disabled = !isIn;
+    lunchButton.disabled = !isIn;
+    dinnerButton.disabled = !isIn;
+
     if (isAblc) {
         sgDecButton.disabled = true;
         sgIncButton.disabled = true;
         guestDecButton.disabled = true;
         guestIncButton.disabled = true;
-    } else {
-        sgDecButton.disabled = isIn;
-        sgIncButton.disabled = isIn;
-        guestDecButton.disabled = !isIn;
-        guestIncButton.disabled = !isIn;
-
-        breakfastButton.disabled = !isIn;
-        lunchButton.disabled = !isIn;
-        dinnerButton.disabled = !isIn;
     }
 }
 
@@ -57,6 +57,18 @@ function toggleMealButton(mealButton, property, inmate) {
     }
 }
 
+// Function to clear and add event listeners to buttons
+function addClickListeners(button, eventHandler) {
+    // Clone the button to remove all previous event listeners
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+
+    // Add the new event listener
+    newButton.addEventListener('click', eventHandler);
+
+    return newButton; // Return the new button reference
+}
+
 // Function to show the popup with inmate details
 function showPopup(inmateId, date) {
     if (!date) {
@@ -77,15 +89,13 @@ function showPopup(inmateId, date) {
                     messNumber: data.mess_number,
                     status: data.status,
                     isAblc: data.is_ablc,
-                    breakfast: data.breakfast,  // Ensure this field is correctly populated
+                    breakfast: data.breakfast,
                     lunch: data.lunch,
                     dinner: data.dinner,
-                    guestCount: data.guest_count,
-                    sgCount: data.sg_count,
+                    guestCount: data.guest_count ?? 0,
+                    sgCount: data.sg_count ?? 0,
                     isBillDue: data.is_bill_due
                 };
-
-                console.log(inmate.isBillDue);
 
                 if (inmate.isBillDue) {
                     alert(`${inmate.name} has unpaid bills.\nPlease be aware!!!`);
@@ -103,8 +113,10 @@ function showPopup(inmateId, date) {
 
                 setButtonState(inmate.status === 'in', inmate.isAblc);
 
-                messStatusButton.addEventListener('click', () => toggleMessStatus(messStatusButton, inmate));
+                // Toggle Mess Status
+                messStatusButton.onclick = () => toggleMessStatus(messStatusButton, inmate);
 
+                // Meal buttons
                 const breakfastButton = document.getElementById('breakfast');
                 const lunchButton = document.getElementById('lunch');
                 const dinnerButton = document.getElementById('dinner');
@@ -113,41 +125,47 @@ function showPopup(inmateId, date) {
                 lunchButton.classList.toggle('active', inmate.lunch);
                 dinnerButton.classList.toggle('active', inmate.dinner);
 
-                breakfastButton.addEventListener('click', () => toggleMealButton(breakfastButton, 'breakfast', inmate));
-                lunchButton.addEventListener('click', () => toggleMealButton(lunchButton, 'lunch', inmate));
-                dinnerButton.addEventListener('click', () => toggleMealButton(dinnerButton, 'dinner', inmate));
+                breakfastButton.onclick = () => toggleMealButton(breakfastButton, 'breakfast', inmate);
+                lunchButton.onclick = () => toggleMealButton(lunchButton, 'lunch', inmate);
+                dinnerButton.onclick = () => toggleMealButton(dinnerButton, 'dinner', inmate);
 
                 const guestCountLabel = document.getElementById('guest-count');
                 const sgCountLabel = document.getElementById('sg-count');
 
-                // Setting guest and SG counts as zero if null
-                inmate.guestCount = inmate.guestCount ?? 0;
-                inmate.sgCount = inmate.sgCount ?? 0;
-
                 guestCountLabel.innerText = inmate.guestCount;
                 sgCountLabel.innerText = inmate.sgCount;
 
+                // Increment and decrement buttons
                 const guestIncButton = document.getElementById('guest-inc');
                 const guestDecButton = document.getElementById('guest-dec');
                 const sgIncButton = document.getElementById('sg-inc');
                 const sgDecButton = document.getElementById('sg-dec');
 
-                guestIncButton.addEventListener('click', () => {
+                // Clear and add event listeners
+                addClickListeners(guestIncButton, () => {
                     inmate.guestCount += 1;
                     guestCountLabel.innerText = inmate.guestCount;
                 });
-                guestDecButton.addEventListener('click', () => {
-                    inmate.guestCount -= 1;
-                    guestCountLabel.innerText = inmate.guestCount;
+
+                addClickListeners(guestDecButton, () => {
+                    if (inmate.guestCount > 0) {
+                        inmate.guestCount -= 1;
+                        guestCountLabel.innerText = inmate.guestCount;
+                    }
                 });
 
-                sgIncButton.addEventListener('click', () => {
-                    inmate.sgCount += 1;
-                    sgCountLabel.innerText = inmate.sgCount;
+                addClickListeners(sgIncButton, () => {
+                    if (inmate.sgCount < 3) {
+                        inmate.sgCount += 1;
+                        sgCountLabel.innerText = inmate.sgCount;
+                    }
                 });
-                sgDecButton.addEventListener('click', () => {
-                    inmate.sgCount -= 1;
-                    sgCountLabel.innerText = inmate.sgCount;
+
+                addClickListeners(sgDecButton, () => {
+                    if (inmate.sgCount > 0) {
+                        inmate.sgCount -= 1;
+                        sgCountLabel.innerText = inmate.sgCount;
+                    }
                 });
             }
         })
@@ -198,9 +216,11 @@ document.getElementById('date').addEventListener('change', function () {
 
 // Close popup functionality
 document.getElementById('closePopup').addEventListener('click', () => {
+    inmate = null;
     document.getElementById('popup').style.display = 'none';
 });
 document.getElementById('cancel').addEventListener('click', () => {
+    inmate = null;
     document.getElementById('popup').style.display = 'none';
 });
 
