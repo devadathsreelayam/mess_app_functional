@@ -52,6 +52,10 @@
     <h1>View Bills</h1>
 
     <form action="/choose_month" id="setMonth" style="flex-direction: row;" method="GET">
+        <select name="year" id="year" class="form-control" required>
+            <option disabled selected>Select Year</option>
+            <option value="2025">2025</option>
+        </select>
         <select name="month" id="month" class="form-control" required>
             <option disabled selected>Select Month</option>
             <option value="January">January</option>
@@ -66,10 +70,6 @@
             <option value="October">October</option>
             <option value="November">November</option>
             <option value="December">December</option>
-        </select>
-        <select name="year" id="year" class="form-control" required>
-            <option disabled selected>Select Year</option>
-            <option value="2025">2025</option>
         </select>
         <input type="submit" class="btn" value="Get Details" style="margin-top: 0;">
     </form>
@@ -160,9 +160,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-
 <script>
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('date').value = today;
@@ -176,10 +173,6 @@
         const popup = document.getElementById(id);
         popup.style.display = 'none';
     }
-
-    $(document).ready(function() {
-        $('#monthly').DataTable();
-    });
 </script>
 {% endblock %}
 
