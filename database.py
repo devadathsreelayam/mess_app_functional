@@ -2,6 +2,7 @@ import calendar
 from datetime import datetime
 import pymysql
 import pymysql.cursors
+import pandas as pd
 
 
 def __get_db_connection():
@@ -375,5 +376,27 @@ def add_user(userid, user_name, department, mobile, role, action='add'):
         return None
 
 
+def monthly_report(first_date, last_date):
+    connection = __get_db_connection()
+    inmates_df = pd.read_sql_query(
+        "SELECT mess_no, inmate_name, department, is_ablc FROM inmates WHERE join_date < %s;", connection, params=last_date
+    )
+    mess_in_df = pd.read_sql_query(
+        "SELECT mess_no, COUNT(in_status) AS join_count FROM mess_status WHERE in_status = 'in' AND update_date BETWEEN %s AND %s GROUP BY mess_no",
+        connection, params=[first_date, last_date]
+    )
+    guest_df = pd.read_sql_query(
+        "SELECT mess_no, COUNT(guest_count) AS guest_count, COUNT(sg_count) AS sg_count FROM guest_logs WHERE log_date BETWEEN %s AND %s GROUP BY mess_no",
+        connection, params=[first_date, last_date]
+    )
+    summery_df = inmates_df.merge(mess_in_df, on='mess_no', how='left').merge(guest_df, on='mess_no', how='left').fillna(0)
+    summery_df['join_count'] = summery_df['join_count'].astype(int)
+    summery_df['sg_count'] = summery_df['sg_count'].astype(int)
+    summery_df['guest_count'] = summery_df['guest_count'].astype(int)
+    connection.close()
+
+    return summery_df
+
+
 if __name__ == '__main__':
-    print(get_users('deva'))
+    print(monthly_report('2025-01-01', '2025-01-31'))
