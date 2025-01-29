@@ -486,5 +486,45 @@ def update_user():
         return jsonify({'error': 'Failed to update user.'}), 500
 
 
+@app.route('/bills')
+def bills():
+    return render_template('bills.html')
+
+
+@app.route('/choose_month', methods=['GET'])
+def choose_month():
+    try:
+        month = request.args.get('month')
+        year = request.args.get('year')
+
+        first_date, last_date = get_first_and_last_dates(month, int(year))
+
+        # Get opening and closing stock, vacated charges, etc
+        from bill_calculator import monthly_report
+        monthly_data = monthly_report(first_date, last_date)
+
+        expense_per_head = monthly_data['expense_per_head']
+        guest_fixed_amount = monthly_data['guest_fixed_amount']
+
+        inmate_summery_df = db.monthly_report(first_date, last_date)
+        inmate_summery_df['join_amount'] = inmate_summery_df['join_count'] * expense_per_head
+        inmate_summery_df['guest_amount'] = (inmate_summery_df['sg_count'] + inmate_summery_df['guest_count']) * guest_fixed_amount
+        inmate_summery_df['bill_amount'] = inmate_summery_df['join_amount'] + inmate_summery_df['guest_amount']
+        inmate_summery = inmate_summery_df.to_dict(orient='records')
+
+        monthly_data['month'] = month
+        monthly_data['year'] = year
+        monthly_data['inmate_summery'] = inmate_summery
+
+        if monthly_data:
+            return render_template('bills.html', monthly_data=monthly_data)
+
+        return redirect(url_for('bills'))
+
+    except Exception as e:
+        print(f'Error while fetching monthly data: {e}')
+        return jsonify({'error': 'Error obtaining monthly data'}), 400
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

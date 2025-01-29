@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Summary{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/summery.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="popup" id="dailyPopup">
+        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('dailyPopup')">close</span>
+        <form action="/daily_summery" method="get">
+            <h2>Summery by Date</h2>
+            <label for="date">Choose Date: </label>
+            <input type="date" name="date" id="date" class="form-control">
+
+            <input class="btn" type="submit" value="Get Summery">
+        </form>
+    </div>
+
+    <div class="popup" id="monthlyPopup">
+        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('monthlyPopup')">close</span>
+        <form action="/monthly_summery" method="get">
+            <h2>Summery by Month</h2>
+            <label for="month">Choose Month: </label>
+            <select name="month" id="month" class="form-control">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        
+            <label for="year" style="margin-top: 10px;">Choose Year: </label>
+            <select name="year" id="year" class="form-control">
+                <option value="2025">2025</option>
+            </select>
+
+            <input class="btn" type="submit" value="Get Summery" style="margin-top: 15px;">
+        </form>
+    </div>
+
+    <h1>View Bills</h1>
+
+    <form action="/choose_month" id="setMonth" style="flex-direction: row;" method="GET">
+        <select name="month" id="month" class="form-control" required>
+            <option disabled selected>Select Month</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+        </select>
+        <select name="year" id="year" class="form-control" required>
+            <option disabled selected>Select Year</option>
+            <option value="2025">2025</option>
+        </select>
+        <input type="submit" class="btn" value="Get Details" style="margin-top: 0;">
+    </form>
+
+    {% if monthly_data %}
+    <section class="monthly-summery" id="monthly-summery">
+        <h1>Monthly Bill of {{ monthly_data['month'] }}, {{ monthly_data['year'] }}</h1>
+
+        {% if monthly_data %}
+        <table style="margin: 20px 0;">
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+            </tr>
+            <tr>
+                <td>Net Purchase</td>
+                <td>{{ monthly_data['net_purchase'] }}</td>
+            </tr>
+            <tr>
+                <td>Net Fixed</td>
+                <td>{{ monthly_data['net_fixed'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Guest Count</td>
+                <td>{{ monthly_data['total_guest_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total SG Count</td>
+                <td>{{ monthly_data['total_sg_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Total Guest Charges</td>
+                <td>{{ monthly_data['total_guest_charges'] }}</td>
+            </tr>
+            <tr>
+                <td>Number of Inmates</td>
+                <td>{{ monthly_data['inmate_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Number of Joins</td>
+                <td>{{ monthly_data['join_count'] }}</td>
+            </tr>
+            <tr>
+                <td>Fixed Charges per Inmate</td>
+                <td>{{ monthly_data['fixed_per_head'] }}</td>
+            </tr>
+            <tr>
+                <td>Daily Expense per Inmate</td>
+                <td>{{ monthly_data['expense_per_head'] }}</td>
+            </tr>
+        </table>
+        {% endif %}
+
+        <div class="overflow-x">
+            <table id="monthly">
+                <tr>
+                    <th>Mess No.</th>
+                    <th>Inmate Name</th>
+                    <th>Department</th>
+                    <th>ABLC</th>
+                    <th>Join Count</th>
+                    <th>Guest Count</th>
+                    <th>SG Count</th>
+                    <th>Join Amount</th>
+                    <th>Guest Charges</th>
+                    <th>Net Bill Amount</th>
+                </tr>
+
+                {% for inmate in monthly_data['inmate_summery'] %}
+                <tr>
+                    <td>{{ inmate['mess_no'] }}</td>
+                    <td>{{ inmate['inmate_name'] }}</td>
+                    <td>{{ inmate['department'] }}</td>
+                    <td>{{ "ABLC" if inmate['is_ablc'] else "" }}</td>
+                    <td>{{ inmate['join_count'] }}</td>
+                    <td>{{ inmate['guest_count'] }}</td>
+                    <td>{{ inmate['sg_count'] }}</td>
+                    <td>{{ inmate['join_amount'] }}</td>
+                    <td>{{ inmate['guest_amount'] }}</td>
+                    <td>{{ inmate['bill_amount'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    function showPopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'block';
+    }
+
+    function closePopup(id) {
+        const popup = document.getElementById(id);
+        popup.style.display = 'none';
+    }
+
+    $(document).ready(function() {
+        $('#monthly').DataTable();
+    });
+</script>
+{% endblock %}
+

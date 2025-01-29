@@ -21,6 +21,7 @@
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'manage_inmates' %}link-active{% endif %}" href="{{ url_for('manage_inmates') }}">Manage Inmates</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint in ['summery', 'daily_summery', 'monthly_summery'] %}link-active{% endif %}" href="{{ url_for('summery') }}">View Summary</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'manage_expense' %}link-active{% endif %}" href="{{ url_for('manage_expense') }}">Manage Expenses</a></li>
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'bills' %}link-active{% endif %}" href="{{ url_for('bills') }}">Bills</a></li>
             <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'manage_users' %}link-active{% endif %}" href="{{ url_for('manage_users') }}">Manage Users</a></li>
             <li class="nav-item button"><a class="nav-link button" aria-disabled="true" href="#">Logout</a></li>
         </ul>
