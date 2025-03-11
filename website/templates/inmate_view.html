@@ -1,0 +1,531 @@
+{% extends "base.html" %}
+
+{% block title %}Inmate View{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+
+<style>
+    #trash {
+        opacity: 0.8;
+        width: 120px;
+        transform: rotate(20deg);
+    }
+
+    .card {
+        width: 100%;
+        padding: 20px;
+        background-color: #f1f1f1;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .card-col {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+        position: relative;
+    }
+
+    .card-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #424242;
+    }
+
+    .value {
+        font-size: 1.2rem;
+        color: rgb(104, 40, 6);
+    }
+
+    #person {
+        width: 150px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        position: absolute;
+        right: 0;
+    }
+
+    @media (max-width: 800px) {
+        .card {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #person {
+            position: relative;
+            align-self: center;
+        }
+
+        #image-col {
+            order: -1;   
+            margin-bottom: 10px;
+        }
+    }
+
+    #bills-table {
+        width: 100%;
+    }
+
+    #join-data-table {
+        width: 30vw;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Inmate Details</h1>
+
+    <div class="card">
+        <div class="card-col">
+            <div class="card-group">
+                <span class="label">Inmate ID</span>
+                <span class="value">{{ inmate['inmate_id'] }}</span>
+            </div>
+
+            <div class="card-group">
+                <span class="label">Mess Number</span>
+                <span class="value">{{ inmate['mess_no'] }}</span>
+            </div>
+
+            <div class="card-group">
+                <span class="label">Name</span>
+                <span class="value">{{ inmate['inmate_name'] }}</span>
+            </div>
+        </div>
+
+        <div class="card-col">
+            <div class="card-group">
+                <span class="label">Department</span>
+                <span class="value">{{ inmate['department'] }}</span>
+            </div>
+
+            <div class="card-group">
+                <span class="label">ABLC</span>
+                <span class="value">{{ inmate['is_ablc'] }}</span>
+            </div>
+
+            <div class="card-group">
+                <span class="label">Bill Due</span>
+                {% if inmate['is_bill_due'] > 0 %}
+                <span class="value">{{ inmate['is_bill_due'] }} Bills Due</span>
+                {% else %}
+                <span class="value">No Due</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-col" id="image-col">
+            <img src="{{ url_for('static', filename='images/inmates/' + inmate['image']) }}" id="person" alt="person" class="person">
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.role in ['admin', 'secretary'] %}
+    <div class="full-row">
+        <button class="btn" onclick="editInmate()">
+            <span class="material-symbols-outlined">edit</span>
+            Edit This Inmate
+        </button>
+        <button class="btn" onclick="askDelete()">
+            <span class="material-symbols-outlined">delete</span>
+            Delete This Inmate
+        </button>
+    </div>
+    {% endif %}
+
+    {% if days_info %}
+    <h2>Available Join Data</h2>
+    <div class="overflow-x">
+        <table id="join-data-table">
+            <thead>
+                <tr>
+                    <th>Sl No.</th>
+                    <th>Month</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in days_info %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ record[0] }}/{{ record[1] }}</td>
+                    <td><a onclick="showDatesPopup('{{ record[0] }}', '{{ record[1] }}');">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <h2>Available Bills</h2>
+    <div class="overflow-x">
+        <table id="bills-table">
+            <tr>
+                <th>Sl No.</th>
+                <th>Bill Month</th>
+                <th>Bill Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Paid Date</th>
+                <th>Reference ID</th>
+                <th>Actions</th>
+            </tr>
+            {% for bill in bills %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ bill['month']}}/{{bill['year']}}</td>
+                <td>{{ bill['generated_date'] }}</td>
+                <td>{{ bill['amount'] }}</td>
+                <td>{{ bill['status'] }}</td>
+                <td>{{ bill['paid_date'] }}</td>
+                <td>{{ bill['reference_id'] }}</td>
+                {% if bill['status'] == "Paid" %}
+                <td></td>
+                {% else %}
+                <td>
+                    <div>
+                        <span class="material-symbols-outlined action" onclick="markDue(`{{ bill['month'] }}`, `{{ bill['year'] }}`)">pending_actions</span>
+                        <span class="material-symbols-outlined action" onclick="setBillPaid(`{{ bill['month'] }}`, `{{ bill['year'] }}`)">task</span>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="popup" id="popup">
+    <h1>Dates</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('popup')">close</span>
+    
+    <div class="table-container">
+        <div class="table-wrapper">
+            <table id="joins-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Mess In/Out</th>
+                        <th>Guest</th>
+                        <th>SG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="popup" id="paidPopup">
+    <h1>Save Bill as Paid</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('paidPopup')">close</span>
+    <form>
+        <div class="input-item">
+            <label for="paid_date" class="form-label">Paid Date</label>
+            <input type="date" class="form-control" name="paid_date" id="paid_date">
+        </div>
+
+        <div class="input-item">
+            <label for="reference_id" class="form-label">Reference ID</label>
+            <input type="text" class="form-control" name="reference_id" id="reference_id" placeholder="Enter Reference ID">
+        </div>
+
+        <input type="submit" class="btn btn-long-m" value="Submit">
+    </form>
+</div>
+
+
+<!-- Edit inmate popup -->
+<div class="popup" id="editPopup">
+    <h1>Edit Inmate</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('editPopup')">close</span>
+    <form action="/update_inmate" method="POST">
+        <div class="input-item">
+            <label for="inmate_id" class="form-label">Inmate ID</label>
+            <input type="text" class="form-control" name="inmate_id" id="inmate_id" placeholder="Enter Inmate ID" readonly>
+        </div>
+
+        <div class="input-item">
+            <label for="mess_no" class="form-label">Mess Number</label>
+            <input type="text" class="form-control" name="mess_no" id="mess_no" placeholder="Enter Mess Number">
+        </div>
+
+        <div class="input-item">
+            <label for="inmate_name" class="form-label">Name of Inmate</label>
+            <input type="text" class="form-control" name="inmate_name" id="inmate_name" placeholder="Enter Name" required>
+        </div>
+
+        <div class="input-item">
+            <label for="department" class="form-label">Department of Inmate</label>
+            <input type="text" class="form-control" name="department" id="department" placeholder="Enter Department" required>
+        </div>
+
+        <div class="input-item">
+            <label for="join_date" class="form-label">Date of Joining Mess</label>
+            <input type="date" class="form-control" name="join_date" id="join_date" required>
+        </div>
+
+        <div class="input-item">
+            <label for="ablc">ABLC</label>
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="ablc" value="ablc">
+                    <label class="form-check-label" for="ablc">ABLC</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="regular" value="regular" checked>
+                    <label class="form-check-label" for="regular">Regular</label>
+                </div>
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-long-m" value="Submit">
+    </form>
+</div>
+
+
+<div class="popup" id="warningPopup">
+    <h2 style="margin: 0 0 10px 0; color: rgb(32, 100, 152);">Do you want to delete this inmate?</h2>
+    <div style="display: flex; align-items: center;">
+        <p style="font-size: 0.9rem; color: #333; line-height: 1.8;">Please note that, this action will delete all records related to this inmate including join data. This function is only to delte a record which was accidentally created.</p>
+        <img id="trash" src="../static/images/trash.png" alt="trash">    
+    </div>
+    
+    <div class="full-row" style="gap: 10px; margin-top: 10px;">
+        <button class="btn" onclick="cancelDelete()">
+            <span class="material-symbols-outlined">close</span>
+            Don't Delete
+        </button>
+        <button class="btn" onclick="confirmDelete()" style="background-color: rgb(216, 19, 19);">
+            <span class="material-symbols-outlined">delete</span>
+            Ok, Delete
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const popup = document.getElementById('popup');
+    const backdrop = document.getElementById('backdrop');
+    let inmate = null;
+
+    function editInmate(element) {
+        const inmateId = "{{ inmate['inmate_id'] }}";
+        console.log("Inmate ID:", inmateId);
+
+        fetch(`/get_inmate/${inmateId}`)
+            .then(response => {
+                console.log("Response status:", response.status); // Log status
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetch data:", data);
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    // Populate form fields
+                    document.getElementById('inmate_id').value = data.inmate_id;
+                    document.getElementById('mess_no').value = data.mess_number;
+                    document.getElementById('inmate_name').value = data.name;
+                    document.getElementById('department').value = data.department;
+                    document.getElementById('join_date').value = data.join_date;
+
+                    // Handle ABLC status
+                    if (data.is_ablc) {
+                        document.getElementById('ablc').checked = true;
+                    } else {
+                        document.getElementById('regular').checked = true;
+                    }
+
+                    // Show the popup
+                    document.getElementById('editPopup').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching inmate details:', error);
+                alert('Failed to fetch inmate details.');
+            });
+    }
+
+    function showDatesPopup(month, year) {
+        const inmateId = "{{ inmate['inmate_id'] }}";
+        popup.style.display = 'block';
+
+        // Fetch data from the Flask backend
+        fetch(`/show_joins?inmateId=${inmateId}&month=${month}&year=${year}`)
+            .then(response => response.json()) // Parse the JSON response
+            .then(data => {
+                console.log('Inmate: ' + data)
+                // Get the table body
+                const tableBody = document.querySelector('#joins-table tbody');
+                tableBody.innerHTML = ''; // Clear any existing rows
+
+                // Loop through the data and add rows to the table
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+
+                    row.guest_count = row.guest_count == null || row.guest_count == 0 ? '' : row.guest_count;
+                    row.sg_count = row.sg_count == null || row.sg_count == 0 ? '' : row.sg_count;
+
+                    tr.innerHTML = `
+                        <td style="width: auto;">${row.update_date}</td>
+                        <td style="width: auto;">${row.in_status}</td>
+                        <td style="width: auto;">${row.guest_count}</td>
+                        <td style="width: auto;">${row.sg_count}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    function closePopup(popup) {
+        backdrop.style.display = 'none';
+        document.getElementById(popup).style.display = 'none';
+    }
+
+    function askDelete() {
+        backdrop.style.display = 'block';
+        document.getElementById('warningPopup').style.display = 'block';
+    }
+
+    function cancelDelete() {
+        backdrop.style.display = 'none';
+        document.getElementById('warningPopup').style.display = 'none';
+    }
+
+    function confirmDelete(event, element) {
+        const inmateId = "{{ inmate['inmate_id'] }}";
+
+        fetch(`/delete_inmate/${inmateId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Delete request failed'); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Delete successful:', data.message);
+            window.location.href = '/manage_inmates';
+            alert(data.message);  // Notify user of success
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+
+        return true;
+    }
+
+    function markDue(month, year) {
+        const inmateId = "{{ inmate['inmate_id'] }}";
+
+        fetch('/change_bill_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'inmate_id': inmateId,
+                'month': month,
+                'year': year
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('Bill status change saved successfully!');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error saving changes:', error);
+                alert('Failed to save changes.');
+            });
+    }
+
+    function setBillPaid(month, year) {
+        const inmateId = "{{ inmate['inmate_id'] }}";
+        const paidPopup = document.getElementById('paidPopup');
+
+        // Show the popup
+        paidPopup.style.display = 'block';
+
+        // Handle form submission
+        const form = paidPopup.querySelector('form');
+        form.onsubmit = function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get values from input fields
+            const paidDate = document.getElementById('paid_date').value;
+            const referenceId = document.getElementById('reference_id').value;
+
+            if (!paidDate || !referenceId) {
+                alert("Please fill in all fields before submitting.");
+                return;
+            }
+
+            // Send data to the server
+            fetch('/update_bill_paid', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'inmate_id': inmateId,
+                    'month': month,
+                    'year': year,
+                    'paid_date': paidDate,
+                    'reference_id': referenceId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('Bill status updated successfully!');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error saving changes:', error);
+                alert('Failed to save changes.');
+            });
+
+            // Close the popup after submission
+            paidPopup.style.display = 'none';
+        };
+    }
+</script>
+{% endblock %}

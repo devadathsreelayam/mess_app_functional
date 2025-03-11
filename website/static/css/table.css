@@ -1,0 +1,84 @@
+table, tr, td, th {
+    border: 1px solid #333;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+th {
+    background-color: #212529;
+    color: #fff;
+    font-weight: 500;
+    padding: 10px;
+}
+
+tr:nth-child(even) {
+    background-color: #E9ECEF;
+}
+
+tr:hover td {
+    background-color: #ccced0;
+}
+
+.actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+}
+
+.actions a {
+    text-decoration: none;
+    color: #212529;
+    padding: 2px;
+    border-radius: 5px;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.actions a:hover {
+    background-color: #E9ECEF;
+}
+
+table#data-table td {
+    text-align: left;
+    width: auto;
+    padding: 5px 20px 5px 5px;
+}
+
+table#data-table td:nth-child(2) {
+    width: 100%;
+}
+
+table#data-table td:nth-child(3) {
+    text-wrap: nowrap;
+}
+
+table#join-data-table td {
+    width: auto;
+    text-align: center;
+    vertical-align: center;
+}
+
+@media (max-width: 600px) {
+    table#join-data-table {
+        width: 100%;
+    }
+}
+
+table#join-data-table td a {
+    background-color: purple;
+    color: #f1f1f1;
+    font-size: 0.9rem;
+    padding: 3px 10px;
+    border-radius: 10%;
+    cursor: pointer;
+}
+
+@media (max-width: 824px) {
+    table#data-table td {
+        text-wrap: wrap;
+    }
+}

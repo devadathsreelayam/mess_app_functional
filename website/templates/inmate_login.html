@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inmate Login</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-family: 'Poppins';
+        }
+
+        body {
+            background-color: rgb(188, 205, 226);
+        }
+
+        h1 {
+            font-weight: 400;
+            color: rgb(32, 100, 152)
+        }
+
+        .login {
+            position: fixed;
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            top: 50%;
+            left: 50%;
+            translate: -50% -50%;
+            border-radius: 10px;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 10px;
+        }
+
+        .input-item {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input#mess_no {
+            border: 1px solid #aaa;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: inherit;
+        }
+
+        input[type="submit"] {
+            height: 2.5rem;
+            background-color: rgb(32, 100, 152);
+            border: 0;
+            border-radius: 5px;
+            width: 100%;
+            color: #fff;
+            font-family: inherit;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <h1>Inmate Login</h1>
+
+        <form action="/inmate_redirect" method="get">
+            <div class="input-item">
+                <label for="mess_no">Mess Number</label>
+                <input type="text" name="mess_no" id="mess_no" placeholder="Enter Mess Number">
+            </div>
+
+            <input type="submit" value="Get Data">
+        </form>
+    </div>
+</body>
+</html>
