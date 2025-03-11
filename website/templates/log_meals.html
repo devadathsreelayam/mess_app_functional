@@ -18,19 +18,18 @@
             <label for="date">Choose Date:&nbsp;&nbsp;</label>
             <input type="date" name="date" id="date" class="shadow" value="{{ selected_date }}">
         </div>
-        <span class="user">User Name</span>
     </div>
 </header>
 
 <section class="inmate-view">
     {% for inmate in inmates %}
-    <div class="inmate-item" data-inmate-id="{{ inmate['mess_no'] }}">
-        <img src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg" alt="person" class="person">
+    <div class="inmate-item" data-inmate-id="{{ inmate['inmate_id'] }}">
+        <img src="{{ url_for('static', filename='images/inmates/' + inmate['image']) }}" alt="person" class="person">
         <div class="contents">
             <div class="row">
                 <h3 class="name">{{ inmate['inmate_name'] }}</h3>
                 {% if inmate['is_ablc'] %}
-                <span class="ablc">ABLC</span>
+                <span class="ablc prevent-select">ABLC</span>
                 {% endif %}
             </div>
             <p class="dept">{{ inmate['department'] }}</p>
@@ -38,11 +37,11 @@
         <span class="mess-number">{{ inmate['mess_no'] }}</span>
         <div class="tags">
             <!-- Status tags -->
-            {% if inmate['is_bill_due'] %}<span class="tag due">DUE</span>{% endif %}
-            {% if inmate['breakfast'] %}<span class="tag breakfast active">B</span>{% else %}<span class="tag breakfast disabled">B</span>{% endif %}
-            {% if inmate['lunch'] %}<span class="tag lunch active">L</span>{% else %}<span class="tag lunch disabled">L</span>{% endif %}
-            {% if inmate['dinner'] %}<span class="tag dinner active">D</span>{% else %}<span class="tag dinner disabled">D</span>{% endif %}
-            {% if inmate['in_status'] == 'in' %}<span class="status in">In</span>{% elif inmate['in_status'] == 'out' %}<span class="status out">Out</span>{% else %}<span class="status out">N/A</span>{% endif %}
+            {% if inmate['is_bill_due'] > 0 %}<span class="tag due prevent-select">DUE</span>{% endif %}
+            {% if inmate['breakfast'] %}<span class="tag breakfast active prevent-select">B</span>{% else %}<span class="tag breakfast disabled prevent-select">B</span>{% endif %}
+            {% if inmate['lunch'] %}<span class="tag lunch active prevent-select">L</span>{% else %}<span class="tag lunch disabled prevent-select">L</span>{% endif %}
+            {% if inmate['dinner'] %}<span class="tag dinner active prevent-select">D</span>{% else %}<span class="tag dinner disabled prevent-select">D</span>{% endif %}
+            {% if inmate['in_status'] %}<span class="status in prevent-select">In</span>{% elif not inmate['in_status'] %}<span class="status out prevent-select">Out</span>{% else %}<span class="status out">N/A</span>{% endif %}
         </div>
     </div>
     {% endfor %}

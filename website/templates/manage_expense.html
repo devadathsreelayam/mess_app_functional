@@ -5,6 +5,21 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/summery.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+
+<style>
+    #expense-table td, #expense-table th{
+        width: auto;
+    }
+
+    #expense-table td:not(#expense-table td:nth-child(2)) {
+        text-align: center;
+    }
+
+    #expense-table td:nth-child(2) {
+        text-align: left;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -69,7 +84,7 @@
     {% if expenses %}
     <section>
         <div class="overflow-x">
-            <table style="width: 100%">
+            <table style="width: 100%" id="expense-table">
                 <tr>
                     <th>Sl. No.</th>
                     <th>Expense Name</th>
@@ -84,22 +99,24 @@
 
                 {% for expense in expenses %}
                 <tr>
-                    <td>{{ expense['expense_id'] }}</td>
-                    <td>{{ expense['expense_name'] }}</td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ expense['note'] }}</td>
                     <td>{{ expense['bill_date'] }}</td>
                     <td>{{ expense['shop'] }}</td>
                     <td>{{ expense['user_name'] }}</td>
                     <td>{{ expense['type'].capitalize() }}</td>
                     <td>{{ expense['category'] }}</td>
-                    <td>{{ expense['bill_amount'] }}</td>
+                    <td>{{ expense['amount'] }}</td>
 
-                    <td class="actions">
-                        <a href="" action="edit" expense-id="{{ expense['expense_id'] }}" onclick="editExpense(this); return false;">
-                            <span class="material-symbols-outlined">edit</span>
-                        </a>
-                        <a href="/delete_expense/{{ expense['expense_id'] }}" onclick="return confirmDelete(event)">
-                            <span class="material-symbols-outlined">delete_forever</span>
-                        </a>
+                    <td class="actions-cell">
+                        <div class="actions">
+                            <a href="" expense-id="{{ expense['id'] }}" onclick="editExpense(this); return false;">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <a href="/delete_expense/{{ expense['id'] }}" onclick="return confirmDelete(event)">
+                                <span class="material-symbols-outlined">delete_forever</span>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -155,12 +172,12 @@
                     alert(data.error);
                 } else {
                     // Populate form fields
-                    document.getElementById('expense_name').value = data.expense_name;
+                    document.getElementById('expense_name').value = data.note;
                     document.getElementById('bill_date').value = data.bill_date;
                     document.getElementById('shop_name').value = data.shop;
                     document.getElementById('expense_type').value = data.type;
                     document.getElementById('expense_category').value = data.category;
-                    document.getElementById('bill_amount').value = data.bill_amount;
+                    document.getElementById('bill_amount').value = data.amount;
 
                     // Update the form's action to point to the update URL
                     document.getElementById('expenseForm').action = `/update_expense/${expenseId}`;

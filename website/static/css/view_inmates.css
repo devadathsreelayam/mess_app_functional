@@ -8,74 +8,33 @@ h1 {
     margin: 20px 0;
 }
 
+h2 {
+    font-weight: 500;
+    margin-top: 20px;
+}
+
 .overflow-x {
     overflow-x: auto;
     margin-bottom: 20px;
 }
 
-table, tr, td, th {
-    border: 1px solid #333;
-    border-collapse: collapse;
-    padding: 5px;
-}
-
-td:not(td:nth-child(2)) {
+td:not(td:nth-child(3)) {
     text-align: center;
-}
-
-td:nth-child(2) {
-    min-width: max-content;
-    width: 30ch;
 }
 
 td:nth-child(3) {
     min-width: max-content;
+    width: 30ch;
+}
+
+td:nth-child(4) {
+    min-width: max-content;
     width: 20ch;
 }
 
-td:nth-child(4), td:nth-child(5) {
+td:nth-child(5), td:nth-child(6) {
     min-width: max-content;
     width: 10ch;
-}
-
-th {
-    background-color: #212529;
-    color: #fff;
-    font-weight: 500;
-    padding: 10px;
-}
-
-tr:nth-child(even) {
-    background-color: #E9ECEF;
-}
-
-tr:hover td {
-    background-color: #ccced0;
-}
-
-.actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-    gap: 5px;
-    border: 0;
-    padding: 5px;
-}
-
-.actions a {
-    text-decoration: none;
-    color: #212529;
-    padding: 2px;
-    border-radius: 5px;
-    margin: auto 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.actions a:hover {
-    background-color: #E9ECEF;
 }
 
 @media (max-width: 824px) {
@@ -107,9 +66,12 @@ tr:hover td {
     z-index: 100;
     width: 30rem;
     max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
     background-color: #FFF;
     border-radius: 5px;
     padding: 20px 20px;
+    box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.4);
 }
 
 .backdrop {
@@ -175,13 +137,59 @@ label {
     gap: 30px;
 }
 
+.full-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+.full-row > * {  /* Apply styles to all direct children */
+    flex: 1; /* Make each child expand */
+    min-width: 0; /* Prevent overflow issues */
+}
+
+@media  (max-width: 440px) {
+    .full-row {
+        flex-direction: column;
+        gap: 10px;
+        height: max-content;
+    }
+
+    .full-row .btn {
+        margin: 0;
+        min-height: 2.5rem;
+        width: 100%;
+    }
+}
+
 .btn {
-    margin-top: 10px;
+    margin: 10px 0;
     background-color: rgb(32, 100, 152);
     border: 0;
     height: 2.5rem;
     color: #fff;
     font-family: inherit;
     border-radius: 5px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#bills-table td {
+    width: auto;
+}
+
+.action {
     cursor: pointer;
 }

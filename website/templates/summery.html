@@ -21,7 +21,7 @@
     </div>
 
     <div class="popup" id="monthlyPopup">
-        <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('monthlyPopup')">close</span>
+        <span class="material-symbols-outlined close-btn" onclick="closePopup('monthlyPopup')">close</span>
         <form action="/monthly_summery" method="get">
             <h2>Summery by Month</h2>
             <label for="month">Choose Month: </label>
@@ -53,7 +53,7 @@
 
     <div class="wrapper">
         <input type="button" class="btn" value="Daily Summery" onclick="showPopup('dailyPopup')">
-        <input type="button" class="btn" value="Monthly Summery" onclick="showPopup('monthlyPopup')">
+<!--        <input type="button" class="btn" value="Monthly Summery" onclick="showPopup('monthlyPopup')">-->
         <input type="button" class="btn" value="Today's Count: {{ daily_count }}" style="cursor: auto;" disabled>
     </div>
 

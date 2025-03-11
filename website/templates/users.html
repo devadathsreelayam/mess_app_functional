@@ -4,6 +4,26 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+<style>
+    #user-table {
+        width: 100%;
+    }
+
+    #user-table td, #expense-table th{
+        width: auto;
+    }
+
+    #user-table td:not(#user-table td:nth-child(2)) {
+        text-align: center;
+    }
+
+    #user-table td:nth-child(2) {
+        text-align: left;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -15,7 +35,7 @@
     </div>
 
     <div class="overflow-x">
-        <table>
+        <table id="user-table">
             <tr>
                 <th>User ID</th>
                 <th>User Name</th>
@@ -28,21 +48,27 @@
             </tr>
             {% for user in users %}
             <tr>
-                <td>{{ user['userid'] }}</td>
-                <td>{{ user['user_name'] }}</td>
-                <td>{{ user['department'] }}</td>
-                <td>{{ user['mobile'] }}</td>
-                <td>{{ user['added_date'] }}</td>
-                <td>{{ (user['active_status']).capitalize() }}</td>
+                <td>{{ user.id }}</td>
+                <td>{{ user.user_name }}</td>
+                <td>{{ user.department }}</td>
+                <td>{{ user.mobile }}</td>
+                <td>{{ user.added_date }}</td>
+                <td>{{ user.active_status.value }}</td>
                 
                 <td>{{ (user['role']).capitalize() }}</td>
     
-                <td class="actions">
-                    {% if not user['role'] == 'admin' %}
-                    <a href="" action="edit" user-id="{{ user['userid'] }}" onclick="editUser(this); return false;">
-                        <span class="material-symbols-outlined">edit</span>
-                    </a>
-                    {% endif %}
+                <td class="actions-cell">
+                    <div class="actions">
+                        {% if current_user.role == 'admin' %}
+                        <a href="" user-id="{{ user['id'] }}" onclick="editUser(this); return false;">
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
+                        {% elif (not user['role'] == 'admin') %}
+                        <a href="" user-id="{{ user['id'] }}" onclick="editUser(this); return false;">
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -55,10 +81,12 @@
 <div class="popup" id="addUserPopup" style="max-height: 90vh; overflow-y: auto;">
     <h1 id="form-title">Add User</h1>
     <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('addUserPopup')">close</span>
-    <form id="userForm" action="/add_user" method="POST">
+    <form id="userForm" action="/add_user" method="POST" enctype="multipart/form-data">
+        <input type="hidden" id="user_id" name="user_id" value="">
+    
         <div class="input-item">
-            <label for="userid" class="form-label">User ID</label>
-            <input type="text" class="form-control" name="userid" id="userid" placeholder="Enter User ID" required>
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" required>
         </div>
 
         <div class="input-item" id="password-input">
@@ -85,8 +113,8 @@
             <label for="active_status" class="form-label">Active Status</label>
             <select name="active_status" id="active_status" class="form-control">
                 <option disabled selected>Select Status</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
             </select>
         </div>
 
@@ -107,12 +135,19 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
     function editUser(element) {
         const userId = element.getAttribute('user-id');
         console.log("User ID:", userId);
 
-        fetch(`/get_user/${userId}`)
+        fetch('/get_user', {
+            method: 'POST',  // Change method to POST
+            headers: {
+                'Content-Type': 'application/json'  // Specify JSON format
+            },
+            body: JSON.stringify({ user_id: userId })  // Send user ID as JSON
+        })
             .then(response => {
                 console.log("Response status:", response.status); // Log status
                 if (!response.ok) {
@@ -126,14 +161,14 @@
                     alert(data.error);
                 } else {
                     // Populate form fields
-                    document.getElementById('userid').value = data.userid;
+                    document.getElementById('user_id').value = data.id;
+                    document.getElementById('email').value = data.email;
                     document.getElementById('user_name').value = data.user_name;
                     document.getElementById('department').value = data.department;
                     document.getElementById('mobile').value = data.mobile;
                     document.getElementById('active_status').value = data.active_status;
                     document.getElementById('role').value = data.role;
 
-                    document.getElementById('userid').readOnly = true;
                     document.getElementById('form-title').innerText = 'Edit User';
                     document.getElementById('password').placeholder = 'Enter New Password';
                     document.querySelector('label[for="password"]').innerText = 'New Password';
@@ -141,7 +176,7 @@
                     document.getElementById('active_status').closest('div').style.display = 'flex';
 
                     // Update the form's action to point to the update URL
-                    document.getElementById('userForm').action = `/update_user/${userId}`;
+                    document.getElementById('userForm').action = `/update_user`;
 
                     // Show the popup
                     document.getElementById('addUserPopup').style.display = 'block';

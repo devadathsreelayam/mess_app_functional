@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Title{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- <link rel="stylesheet" href="../static/css/base.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css')}}">
+    {% block styles %}
+    {% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a class="navbar-brand" href="#">MH Mess</a>
+        <span class="vertical-separator"></span>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'views.get_by_date' %}link-active{% endif %}" href="{{ url_for('views.log_meals') }}">Log Meals</a></li>
+
+            {% if current_user.role in ['admin', 'secretary'] %}
+                <li class="nav-item"><a class="nav-link  {% if request.endpoint in ['inmates.manage_inmates', 'inmates.inmate_view'] %}link-active{% endif %}" href="{{ url_for('inmates.manage_inmates') }}">Manage Inmates</a></li>
+            {% endif %}
+
+            <li class="nav-item"><a class="nav-link  {% if request.endpoint in ['summaries.summery', 'summaries.daily_summery'] %}link-active{% endif %}" href="{{ url_for('summaries.summery') }}">View Summary</a></li>
+
+            {% if current_user.role in ['admin', 'secretary', 'steerer', 'manager'] %}
+                <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'views.manage_expense' %}link-active{% endif %}" href="{{ url_for('views.manage_expense') }}">Manage Expenses</a></li>
+<!--                <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'summaries.bills' %}link-active{% endif %}" href="{{ url_for('summaries.bills') }}">Bills</a></li> -->
+            {% endif %}
+
+            {% if current_user.role in ['admin', 'secretary'] %}
+                <li class="nav-item"><a class="nav-link  {% if request.endpoint == 'auth.manage_users' %}link-active{% endif %}" href="{{ url_for('auth.manage_users') }}">Manage Users</a></li>
+            {% endif %}
+        </ul>
+
+        <img src="{{ url_for('static', filename=current_user.profile_pic) }}" alt="profile-picture" class="profile-pic" onclick="toggleProfileMenu()">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+    </nav>
+
+    <div id="profile-menu" class="account">
+        <div class="row1">
+            <img src="{{ url_for('static', filename=current_user.profile_pic) }}" alt="profile-picture">
+            <div class="col">
+                <span class="user-name">{{ current_user.user_name }}</span>
+                <span class="user-role">{{ current_user.role.capitalize() }}</span>
+            </div>
+        </div>
+        <hr>
+        <a href="/logout" class="logout" onclick="return logout(event);">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+        </a>
+    </div>
+
+    <!-- Content Section -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='js/base.js')}}"></script>
+    <script>
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profile-menu');
+            menu.classList.toggle('show');
+        }
+
+        // Close the menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const profilePic = document.querySelector('.profile-pic');
+            const menu = document.getElementById('profile-menu');
+
+            if (!menu.contains(event.target) && !profilePic.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        function logout(event) {
+            const menu = document.getElementById('profile-menu');
+            menu.classList.remove('show');
+
+            const consent = confirm('Are you sure you want to logout?');
+
+            if (consent == false) {
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

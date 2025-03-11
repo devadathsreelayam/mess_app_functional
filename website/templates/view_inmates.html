@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}View Inmates{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_inmates.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Inmate Details</h1>
+    <button class="btn" onclick="showAddPopup()">
+        <span class="material-symbols-outlined">add</span>
+        Add Inmate
+    </button>
+    <div class="overflow-x">
+        <table>
+            <tr>
+                <th>Inmate ID</th>
+                <th>Mess No.</th>
+                <th>Inmate Name</th>
+                <th>Department</th>
+                <th>ABLC</th>
+                <th>Bill Due</th>
+                <th>Action</th>
+            </tr>
+            {% for inmate in inmates %}
+            <tr>
+                <td>{{ inmate['inmate_id'] }}</td>
+                <td>{{ inmate['mess_no'] }}</td>
+                <td>{{ inmate['inmate_name'] }}</td>
+                <td>{{ inmate['department'] }}</td>
+                {% if inmate['is_ablc'] %}
+                <td>ABLC</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+
+                {% if inmate['is_bill_due'] > 0 %}
+                <td>Due</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+    
+                <td class="actions-cell">
+                    <div class="actions">
+                        <a href="/inmate_view/{{ inmate['inmate_id'] }}">
+                            <span class="material-symbols-outlined">receipt_long</span>
+                        </a>
+                        <a href="" inmate-id="{{ inmate['inmate_id'] }}" onclick="editInmate(this); return false;">
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
+                        <a href="" inmate-id="{{ inmate['inmate_id'] }}"  inmate-name="{{ inmate['inmate_name'] }}" onclick="return confirmDelete(event, this)">
+                            <span class="material-symbols-outlined">delete_forever</span>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<!-- Edit inmate popup -->
+<div class="popup" id="editPopup">
+    <h1>Edit Inmate</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('editPopup')">close</span>
+    <form action="/update_inmate" method="POST">
+        <div class="input-item">
+            <label for="inmate_id" class="form-label">Inmate ID</label>
+            <input type="text" class="form-control" name="inmate_id" id="inmate_id" placeholder="Enter Inmate ID" readonly>
+        </div>
+
+        <div class="input-item">
+            <label for="mess_no" class="form-label">Mess Number</label>
+            <input type="text" class="form-control" name="mess_no" id="mess_no" placeholder="Enter Mess Number">
+        </div>
+
+        <div class="input-item">
+            <label for="inmate_name" class="form-label">Name of Inmate</label>
+            <input type="text" class="form-control" name="inmate_name" id="inmate_name" placeholder="Enter Name" required>
+        </div>
+
+        <div class="input-item">
+            <label for="department" class="form-label">Department of Inmate</label>
+            <input type="text" class="form-control" name="department" id="department" placeholder="Enter Department" required>
+        </div>
+
+        <div class="input-item">
+            <label for="join_date" class="form-label">Date of Joining Mess</label>
+            <input type="date" class="form-control" name="join_date" id="join_date" required>
+        </div>
+
+        <div class="input-item">
+            <label for="ablc">ABLC</label>
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="ablc" value="ablc">
+                    <label class="form-check-label" for="ablc">ABLC</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="regular" value="regular" checked>
+                    <label class="form-check-label" for="regular">Regular</label>
+                </div>
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-long-m" value="Submit">
+    </form>
+</div>
+
+<!-- Add inmate popup -->
+<div class="popup" id="addPopup">
+    <h1>Add Inmate</h1>
+    <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('addPopup')">close</span>
+    <form action="/save_inmate" method="POST">
+        <div class="input-item">
+            <label for="mess_no" class="form-label">Mess Number</label>
+            <input type="text" class="form-control" name="mess_no" id="mess_no" placeholder="Enter Mess Number" required>
+        </div>
+
+        <div class="input-item">
+            <label for="inmate_name" class="form-label">Name of Inmate</label>
+            <input type="text" class="form-control" name="inmate_name" id="inmate_name" placeholder="Enter Name" required>
+        </div>
+
+        <div class="input-item">
+            <label for="department" class="form-label">Department of Inmate</label>
+            <input type="text" class="form-control" name="department" id="department" placeholder="Enter Department" required>
+        </div>
+
+        <div class="input-item">
+            <label for="join_date" class="form-label">Date of Joining Mess</label>
+            <input type="date" class="form-control" name="join_date" id="join_date" required>
+        </div>
+
+        <div class="input-item">
+            <label for="ablc">ABLC</label>
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="ablc" value="ablc">
+                    <label class="form-check-label" for="ablc">ABLC</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ablc" id="regular" value="regular" checked>
+                    <label class="form-check-label" for="regular">Regular</label>
+                </div>
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-long-m" value="Submit">
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const backdrop = document.getElementById('backdrop');
+    let inmate = null;
+
+    function showAddPopup() {
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelector('#addPopup #join_date').value = today;
+        document.getElementById('addPopup').style.display = 'block';
+    }
+
+    function editInmate(element) {
+        const inmateId = element.getAttribute('inmate-id');
+        console.log("Inmate ID:", inmateId);
+
+        fetch(`/get_inmate/${inmateId}`)
+            .then(response => {
+                console.log("Response status:", response.status); // Log status
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetch data:", data);
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    // Populate form fields
+                    document.getElementById('inmate_id').value = data.inmate_id;
+                    document.getElementById('mess_no').value = data.mess_number;
+                    document.getElementById('inmate_name').value = data.name;
+                    document.getElementById('department').value = data.department;
+                    document.getElementById('join_date').value = data.join_date;
+
+                    // Handle ABLC status
+                    if (data.is_ablc) {
+                        document.getElementById('ablc').checked = true;
+                    } else {
+                        document.getElementById('regular').checked = true;
+                    }
+
+                    // Show the popup
+                    document.getElementById('editPopup').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching inmate details:', error);
+                alert('Failed to fetch inmate details.');
+            });
+    }
+
+    function closePopup(popup) {
+        backdrop.style.display = 'none';
+        document.getElementById(popup).style.display = 'none';
+    }
+
+    function confirmDelete(event, element) {
+        const inmateId = element.getAttribute('inmate-id');
+        const inmateName = element.getAttribute('inmate-name');
+        const userConfirmed = confirm(`Are you sure you want to delete inmate ${inmateId}: ${inmateName}?`);
+
+        if (!userConfirmed) {
+            event.preventDefault();
+            return false;
+        }
+
+        fetch(`/delete_inmate/${inmateId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Delete request failed'); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Delete successful:', data.message);
+            // Remove the inmate from the DOM, e.g., if displayed in a table
+            element.closest('tr').remove();
+            alert(data.message);  // Notify user of success
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+
+        return true;
+    }
+
+    function updateBillDueStatus() {
+
+    }
+</script>
+{% endblock %}

@@ -334,3 +334,23 @@ header {
     background-color: rgb(216, 35, 117);
     color: #fff;
 }
+
+.load-sts {
+    font-family: inherit;
+    cursor: pointer;
+    height: 32px;
+    padding: 0px 10px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 5px;
+    background-color: #212529;
+    color: #f1f1f1;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.prevent-select {
+    cursor: arrow;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}

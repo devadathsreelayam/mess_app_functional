@@ -30,21 +30,21 @@ function setButtonState(isIn, isAblc) {
 
 // Function to toggle mess status
 function toggleMessStatus(messStatusButton, inmate) {
-    if (inmate.status === 'out') {
+    if (!inmate.status) {
         // Change to IN
         messStatusButton.classList.add('in');
         messStatusButton.classList.remove('out');
         messStatusButton.innerText = 'MESS IN';
-        inmate.status = 'in';
+        inmate.status = true;
     } else {
         // Change to OUT
         messStatusButton.classList.add('out');
         messStatusButton.classList.remove('in');
         messStatusButton.innerText = 'MESS OUT';
-        inmate.status = 'out';
+        inmate.status = false;
     }
 
-    setButtonState(inmate.status === 'in', inmate.isAblc);
+    setButtonState(inmate.status, inmate.isAblc);
 }
 
 function toggleMealButton(mealButton, property, inmate) {
@@ -83,7 +83,7 @@ function showPopup(inmateId, date) {
                 alert(data.error);
             } else {
                 inmate = {
-                    id: inmateId,
+                    inmate_id: inmateId,
                     name: data.name,
                     department: data.department,
                     messNumber: data.mess_number,
@@ -97,7 +97,7 @@ function showPopup(inmateId, date) {
                     isBillDue: data.is_bill_due
                 };
 
-                if (inmate.isBillDue) {
+                if (inmate.isBillDue > 0) {
                     alert(`${inmate.name} has unpaid bills.\nPlease be aware!!!`);
                 }
 
@@ -107,11 +107,11 @@ function showPopup(inmateId, date) {
                 document.getElementById('popup').style.display = 'flex';
 
                 const messStatusButton = document.getElementById('mess-status');
-                messStatusButton.innerText = inmate.status === 'in' ? 'MESS IN' : 'MESS OUT';
-                messStatusButton.classList.toggle('in', inmate.status === 'in');
-                messStatusButton.classList.toggle('out', inmate.status === 'out');
+                messStatusButton.innerText = inmate.status ? 'MESS IN' : 'MESS OUT';
+                messStatusButton.classList.toggle('in', inmate.status);
+                messStatusButton.classList.toggle('out', !inmate.status);
 
-                setButtonState(inmate.status === 'in', inmate.isAblc);
+                setButtonState(inmate.status, inmate.isAblc);
 
                 // Toggle Mess Status
                 messStatusButton.onclick = () => toggleMessStatus(messStatusButton, inmate);
@@ -235,7 +235,7 @@ document.getElementById('save').addEventListener('click', () => {
 
     // Collect updated data from the global inmate object
     const updatedData = {
-        mess_number: inmate.messNumber,
+        inmate_id: inmate.inmate_id,
         date: date,
         status: inmate.status,
         breakfast: inmate.breakfast ? 1 : 0,
@@ -258,7 +258,7 @@ document.getElementById('save').addEventListener('click', () => {
             if (data.error) {
                 alert(data.error);
             } else {
-                alert('Changes saved successfully!');
+                // alert('Changes saved successfully!');
                 document.getElementById('popup').style.display = 'none';
                 location.reload(); // Reload the page to reflect updates
             }
@@ -268,3 +268,12 @@ document.getElementById('save').addEventListener('click', () => {
             alert('Failed to save changes.');
         });
 });
+
+// Set max date for date edit
+const today = new Date();
+
+const maxDate = new Date();
+maxDate.setDate(today.getDate() + 10);
+
+const maxDateFormatted = maxDate.toISOString().split('T')[0];
+document.getElementById('date').setAttribute('max', maxDateFormatted);
