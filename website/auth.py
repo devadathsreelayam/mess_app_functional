@@ -5,8 +5,6 @@ from datetime import datetime
 from .models import User
 from . import db, role_required
 
-from PIL import Image
-import os
 
 auth = Blueprint('auth', __name__)
 
