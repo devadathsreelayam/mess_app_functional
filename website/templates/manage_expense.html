@@ -27,7 +27,7 @@
     <div class="popup" id="addExpensePopup" style="width: 25rem; max-width: 90%;">
         <span class="material-symbols-outlined close-btn" id="closePopup" onclick="closePopup('addExpensePopup')">close</span>
         <form id="expenseForm" action="/add_expense" method="POST">
-            <h2>Add Expense</h2>
+            <h2 id="expenseFormTitle">Add Expense</h2>
             <div class="input-item">
                 <label for="expense_name" class="form-label">Expense Name</label>
                 <input type="text" class="form-control" name="expense_name" id="expense_name" placeholder="Enter Expense Name" required>
@@ -113,7 +113,7 @@
                             <a href="" expense-id="{{ expense['id'] }}" onclick="editExpense(this); return false;">
                                 <span class="material-symbols-outlined">edit</span>
                             </a>
-                            <a href="/delete_expense/{{ expense['id'] }}" onclick="return confirmDelete(event)">
+                            <a href="#" onclick="confirmDelete(event, `{{ expense['id'] }}`)">
                                 <span class="material-symbols-outlined">delete_forever</span>
                             </a>
                         </div>
@@ -129,11 +129,23 @@
 
 {% block scripts %}
 <script>
+    const formTitle = document.getElementById('expenseFormTitle');
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('bill_date').value = today;
 
     function showPopup(id) {
         const popup = document.getElementById(id);
+
+        // Reset form title
+        formTitle.innerText = 'Add Expense';
+
+        // Clear form fields
+        document.getElementById('expenseForm').reset();
+
+        // Reset default values
+        document.getElementById('bill_date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('expenseForm').action = "/add_expense";  // Reset form action
+
         popup.style.display = 'block';
     }
 
@@ -142,15 +154,28 @@
         popup.style.display = 'none';
     }
 
-    function confirmDelete(event) {
-        const userConfirmed = confirm(`Are you sure you want to delete the expense?`);
+    function confirmDelete(event, expenseId) {
+        event.preventDefault();  // Prevent default link behavior
 
-        if (!userConfirmed) {
-            event.preventDefault();
-            return false;
-        }
+        const userConfirmed = confirm("Are you sure you want to delete this expense?");
+        if (!userConfirmed) return;
 
-        return true;
+        fetch(`/delete_expense/${expenseId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert("Expense deleted successfully!");
+                location.reload();  // Refresh the page to update UI
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting expense:', error);
+            alert("Failed to delete the expense.");
+        });
     }
 
     // Edit expense
@@ -171,6 +196,9 @@
                 if (data.error) {
                     alert(data.error);
                 } else {
+                    // Change form title
+                    formTitle.innerText = 'Edit Expense';
+
                     // Populate form fields
                     document.getElementById('expense_name').value = data.note;
                     document.getElementById('bill_date').value = data.bill_date;

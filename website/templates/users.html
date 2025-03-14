@@ -190,6 +190,24 @@
 
     function showPopup(id) {
         const popup = document.getElementById(id);
+
+        if (id === 'addUserPopup') {
+            // Reset the form fields
+            document.getElementById('userForm').reset();
+
+            // Reset hidden user_id field and other elements
+            document.getElementById('user_id').value = '';
+            document.getElementById('form-title').innerText = 'Add User';
+            document.getElementById('password').placeholder = 'Enter Password';
+            document.querySelector('label[for="password"]').innerText = 'Password';
+
+            // Hide active status field since it's not required for new users
+            document.getElementById('active_status').closest('div').style.display = 'none';
+
+            // Reset form action to `/add_user`
+            document.getElementById('userForm').action = `/add_user`;
+        }
+
         popup.style.display = 'block';
     }
 

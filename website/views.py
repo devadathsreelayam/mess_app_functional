@@ -104,22 +104,19 @@ def update_expense(expense_id):
         return redirect(url_for('views.manage_expense'))
 
 
-@views.route('/delete_expense/<int:expense_id>', methods=['GET'])
-@login_required
-@role_required('admin', 'secretary')
+@views.route('/delete_expense/<int:expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
-    expense = Expense.query.get(expense_id)  # Retrieve the expense by ID
+    try:
+        expense = Expense.query.get(expense_id)  # Assuming SQLAlchemy ORM
+        if not expense:
+            return jsonify({"error": "Expense not found"}), 404
 
-    if expense:
-        try:
-            db.session.delete(expense)  # Delete the expense
-            db.session.commit()  # Commit the transaction to apply the changes
-            return redirect(url_for('manage_expense'))  # Redirect to the manage expense page
-        except Exception as e:
-            db.session.rollback()  # Rollback the session in case of an error
-            return jsonify({"error": "An error occurred while deleting the expense."}), 500
-    else:
-        return jsonify({"error": "Expense not found."}), 404
+        db.session.delete(expense)
+        db.session.commit()
+        return jsonify({"message": "Expense deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @views.route('/get_by_date/<string:date>', methods=['GET'])
