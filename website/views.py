@@ -247,13 +247,21 @@ def update_inmate_status():
         sg_count = data.get('sg_count')
         print(data)
 
+        # Update mess in status
+        # Obtain mess in status from table
         mess_status = MessStatus.query.get({'inmate_id': inmate_id, 'update_date': date})
+        if mess_status.in_status and (breakfast or lunch or dinner):
+            print('Attempt to mess out inmate with meals logged.')
+            return jsonify({'message': 'Attempt to mess out inmate with meals logged.'})
+
         if mess_status:
+            # If mess in status is available in the table, update
             mess_status.in_status = status
             mess_status.last_edit = datetime.now()
             mess_status.edited_by = current_user.id
             db.session.commit()
         else:
+            # Create new mess status
             mess_status = MessStatus(
                 inmate_id=inmate_id,
                 update_date=date,

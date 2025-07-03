@@ -37,6 +37,12 @@ function toggleMessStatus(messStatusButton, inmate) {
         messStatusButton.innerText = 'MESS IN';
         inmate.status = true;
     } else {
+        // Trying to set to OUT
+        if (inmate.breakfast || inmate.lunch || inmate.dinner) {
+            alert("Cannot mark MESS OUT. Meals have already been logged.");
+            return;
+        }
+
         // Change to OUT
         messStatusButton.classList.add('out');
         messStatusButton.classList.remove('in');
